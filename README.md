@@ -1,13 +1,14 @@
-## 📂 Project Structure (`/src` Directory)
+## Folder Structure
 
 ```text
-/src
-├── /api          // Headless CMS (WordPress) fetch logic and services
-├── /assets       // Static assets (images, icons)
-├── /components   // Reusable React components
-│   ├── /common   // Global UI elements
-│   └── /features // Project-specific functional components
-├── /constants    // Global constants, routing rules, and WP slugs
-├── /pages        // Page-level view components
-└── /styles       // Global CSS and CSS variables
+/
+├── public/            # Static assets
+├── src/
+│   ├── api/           # WP API client & services
+│   ├── app/           # Next.js router, layout, and pages
+│   ├── components/    # React components
+│   └── constants/     # Route slugs and static values
+├── .env               # Environment variables
+├── next.config.mjs    # Next.js settings
+└── package.json       # Project dependencies
 ```
