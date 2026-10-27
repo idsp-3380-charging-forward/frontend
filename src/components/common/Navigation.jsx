@@ -2,8 +2,8 @@ import styles from './Navigation.module.css'
 
 export default function Navigation() {
     return (
-        <nav className={styles.nav}>
-            <ul>
+        <nav className={styles.navOverlay}>
+            <ul className={styles.navList}>
                 <li>ZEVs 101</li>
                 <li>Charging Basics</li>
                 <li>Community Perks</li>
