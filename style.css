@@ -1,0 +1,32 @@
+.carousel {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) 4rem;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    padding: 3rem 2rem;
+    gap: 2rem;
+    background-color: rgb(85, 113, 255);
+}
+
+.carousel__image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 2px solid darkblue;
+    border-radius: 2rem;
+}
+
+.carousel__arrow {
+    color: darkblue;
+    background-color: rgb(198, 207, 255);
+    font-family: "Lucida Grande", Verdana;
+    font-size: 3rem;
+    font-weight: bolder;
+    padding: 0.5rem;
+    border: 0.25rem solid darkblue;
+    border-radius: 0.5rem;
+}
+
+/* em is used for proportional scaling like buttons with text */
+/* rem is used for consistency like headings and paragraphs */
