@@ -1,16 +1,29 @@
 <!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/favicon.svg" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0" />
+        <title>frontend</title>
+    </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>frontend</title>
-</head>
-
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
-</body>
-
+    <body>
+        <div id="root"></div>
+        <script
+            type="module"
+            src="/src/main.jsx"></script>
+        <div class="card-carousel">
+            <img
+                src="this-is-the-img-link"
+                class="carousel-img" />
+            <!-- This link would be replaced by a js component image that swipes when you press next  -->
+            <btn class="arrow-btn arrow-btn--left"><</btn
+            ><btn class="arrow-btn arrow-btn--right">></btn>
+        </div>
+    </body>
 </html>
