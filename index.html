@@ -9,6 +9,9 @@
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            href="style.css" />
         <title>frontend</title>
     </head>
 
@@ -17,13 +20,13 @@
         <script
             type="module"
             src="/src/main.jsx"></script>
-        <div class="card-carousel">
+
+        <div class="carousel">
+            <btn class="carousel__arrow carousel__arrow--left"><</btn>
             <img
-                src="this-is-the-img-link"
-                class="carousel-img" />
-            <!-- This link would be replaced by a js component image that swipes when you press next  -->
-            <btn class="arrow-btn arrow-btn--left"><</btn
-            ><btn class="arrow-btn arrow-btn--right">></btn>
+                class="carousel__image"
+                src="src/images/EV-charging.png" />
+            <btn class="carousel__arrow carousel__arrow--left">></btn>
         </div>
     </body>
 </html>
