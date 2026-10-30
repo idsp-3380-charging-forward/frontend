@@ -7,6 +7,7 @@
     padding: 3rem 2rem;
     gap: 2rem;
     background-color: rgb(85, 113, 255);
+    box-sizing: border-box;
 }
 
 .carousel__image {
@@ -18,6 +19,7 @@
 }
 
 .carousel__arrow {
+    cursor: pointer;
     color: darkblue;
     background-color: rgb(198, 207, 255);
     font-family: "Lucida Grande", Verdana;
@@ -26,6 +28,15 @@
     padding: 0.5rem;
     border: 0.25rem solid darkblue;
     border-radius: 0.5rem;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+    aspect-ratio: 1;
+}
+
+.carousel__arrow:hover {
+    color: whitesmoke;
+    border-color: whitesmoke;
 }
 
 /* em is used for proportional scaling like buttons with text */
