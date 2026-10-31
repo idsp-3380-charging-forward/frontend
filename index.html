@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANchor Links</title>
+    <link href="styles.css" rel="stylesheet"/>
+</head>
+
+
+<body>
+    <div class="test-page">
+        <div class="c-anchor-links">
+            <a href="#section-1">Section 1</a>
+            <a href="#section-2">Section 2</a>
+            <a href="#section-3">Section 3</a>
+        </div>
+
+        <main>
+            <section id="section-1">
+                <h3>SECTION 1</h3>
+                <div class="image"></div>
+            </section>
+
+            <section id="section-2">
+                <h3>SECTION 2</h3>
+                <div class="image"></div>
+            </section>
+
+            <section id="section-3">
+                <h3>SECTION 3</h3>
+                <div class="image"></div>
+            </section>
+        </main>
+    </div>
+    
+<script>
+    const Links = document.querySelectorAll(".c-anchor-links a");
+
+    Links.forEach((link) => {
+        link.addEventListener("click", () => {
+            Links.forEach((l) => l.classList.remove("c-anchor-links--active"));
+            link.classList.add("c-anchor-links--active");
+        });
+    });
+</script>
+
+</body>
+</html>
