@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color:#252525;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.test-page {
+    display: flex;
+    gap: 50px;
+}
+
+main {
+    width: 100%;
+}
+
+.image {
+    background-color: #e3e3e3;
+    height: 400px;
+}
+
+.c-anchor-links {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 250px;
+    background-color: #e3e3e3;
+    border-radius: 5px;
+}
+
+
