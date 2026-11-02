@@ -10,7 +10,7 @@ export default async function Home() {
 
     return (
       <>
-      <main>
+        <main>
           <h1>{pageData.title?.rendered}</h1>
           <article dangerouslySetInnerHTML={{ __html: pageData.content?.rendered }} />
         </main>
