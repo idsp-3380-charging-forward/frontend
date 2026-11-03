@@ -1,5 +1,6 @@
 import { fetchPage } from '../api/services/pages';
 import { WP_SLUGS } from '../constants/routes';
+import ChatbotLauncher from '../components/features/chatbot/ChatbotLauncher';
 
 export default async function Home() {
   try {
@@ -8,10 +9,14 @@ export default async function Home() {
     if (!pageData) return <div>No content found</div>;
 
     return (
-      <main>
-        <h1>{pageData.title?.rendered}</h1>
-        <article dangerouslySetInnerHTML={{ __html: pageData.content?.rendered }} />
-      </main>
+      <>
+        <main>
+          <h1>{pageData.title?.rendered}</h1>
+          <article dangerouslySetInnerHTML={{ __html: pageData.content?.rendered }} />
+        </main>
+
+        <ChatbotLauncher />
+      </>
     );
   } catch (error) {
     return <div>Error: {error.message}</div>;
