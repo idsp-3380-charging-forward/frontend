@@ -19,11 +19,16 @@
 }
 
 .navList li {
-    padding: 12px 20px;
     border-radius: 24px;
     background-color: #888888;
-    border: none;
     text-align: left;
     color: #000;
-    cursor: pointer;
+    overflow: hidden;
+}
+
+.navList a {
+    display: block;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: inherit;
 }

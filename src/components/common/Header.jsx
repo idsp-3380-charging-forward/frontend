@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import styles from './Header.module.css'
 import Navigation from './Navigation'
@@ -21,10 +22,12 @@ export default function Header() {
     return (
         <div className={styles.headerContainer}>
             <header className={styles.header}>
-                <div className={styles.brand}>
-                    CHARGING<br />
-                    <span className={styles.indent}>FORWARD</span>
-                </div>
+                <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <div className={styles.brand}>
+                        CHARGING<br />
+                        <span className={styles.indent}>FORWARD</span>
+                    </div>
+                </Link>
                 <div className={styles.actions}>
                     <button className={styles.iconButton} onClick={toggleSearch}>🔍</button>
                     <button className={styles.iconButton} onClick={toggleNav}>☰</button>
