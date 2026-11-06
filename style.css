@@ -1,3 +1,94 @@
+/* .body {
+    @media screen and (min-width: 1024px) {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+    }
+} */
+
+/* ---------- Desktop ------------- */
+.grid--feature {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3rem;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.grid--feature .grid__item {
+    min-width: 0;
+}
+
+.grid--feature .grid__item img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    box-sizing: border-box;
+}
+
+/* ---------- Mobile ------------- */
+@media (max-width: 600px) {
+    .grid--feature {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    .grid--feature > .grid__item:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .grid--feature .grid__item:last-child img {
+        aspect-ratio: 5 / 1;
+    }
+}
+
+/* ----------- BUTTONS -------------- */
+.c-buttons {
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.c-button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.75em 1.5em;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+/* -------------- BUTTON MODIFIERS -------------  */
+.c-button--primary {
+    background-color: royalblue;
+    color: white;
+    font-size: 0.5rem;
+}
+
+.c-button--large {
+    background-color: slategray;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.c-button--outline {
+    background-color: transparent;
+    border-color: royalblue;
+    color: royalblue;
+}
+
+.c-button--delete {
+    background-color: crimson;
+    color: white;
+}
+
+.c-button:hover {
+    opacity: 0.85;
+}
+
+/* ________________________________________________________ */
+
 .carousel {
     display: grid;
     grid-template-columns: 4rem minmax(0, 1fr) 4rem;
