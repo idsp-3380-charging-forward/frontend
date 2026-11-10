@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import styles from './Chatbot.module.css';
-import ChatbotPanel from './ChatbotPanel';
+import { Fab } from "@mui/material";
+import { useState } from "react";
+import ChatbotPanel from "./ChatbotPanel";
 
 export default function ChatbotLauncher() {
     const [isOpen, setIsOpen] = useState(false);
@@ -10,16 +10,22 @@ export default function ChatbotLauncher() {
     return (
         <>
             {!isOpen && (
-                <button
-                    type="button"
-                    className={styles.launcher}
+                <Fab
                     onClick={() => setIsOpen(true)}
-                    aria-label="Open chatbot"
+                    sx={{
+                        position: "fixed",
+                        bottom: 24,
+                        right: 24,
+                        bgcolor: "#1b4332",
+                        color: "white",
+                        "&:hover": { bgcolor: "#122c21" },
+                        zIndex: 1000,
+                        fontSize: "24px"
+                    }}
                 >
                     💬
-                </button>
+                </Fab>
             )}
-
             {isOpen && <ChatbotPanel onClose={() => setIsOpen(false)} />}
         </>
     );
