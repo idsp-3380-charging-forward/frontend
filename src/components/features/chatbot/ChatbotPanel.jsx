@@ -1,10 +1,12 @@
 "use client";
 
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import CloseIcon from "@mui/icons-material/Close";
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
+import {
+    ArrowForward as ArrowForwardIcon,
+    CloseFullscreen as CloseFullscreenIcon,
+    Close as CloseIcon,
+    OpenInFull as OpenInFullIcon,
+    SentimentSatisfiedAlt as SentimentSatisfiedAltIcon,
+} from "@mui/icons-material";
 import { Box, Button, Dialog, DialogContent, IconButton, InputAdornment, OutlinedInput, Paper, Typography } from "@mui/material";
 import { useState } from "react";
 
