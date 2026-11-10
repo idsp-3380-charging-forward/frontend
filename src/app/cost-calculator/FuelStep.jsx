@@ -1,7 +1,6 @@
 "use client";
 
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, FormControl, MenuItem, Select, Typography } from "@mui/material";
+import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from "@mui/material";
 
 export default function FuelStep({ onNext }) {
     return (
@@ -9,48 +8,52 @@ export default function FuelStep({ onNext }) {
             <Typography variant="h4" fontWeight="bold" gutterBottom>
                 Compare fuel types
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
                 Select the two fuel types you want to compare.
             </Typography>
 
-            <Accordion defaultExpanded elevation={0} sx={{ border: '1px solid #e0e0e0', mb: 3 }}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography fontWeight="bold">Compare fuel types</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography variant="body2" sx={{ mb: 1 }}>First fuel type</Typography>
-                    <FormControl fullWidth sx={{ mb: 2 }}>
-                        <Select defaultValue="electric" size="small">
-                            <MenuItem value="electric">Electric</MenuItem>
-                            <MenuItem value="gasoline">Gasoline</MenuItem>
-                        </Select>
-                    </FormControl>
+            <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', p: 3, mb: 4 }}>
+                <Typography fontWeight="bold" gutterBottom>Compare fuel types</Typography>
 
-                    <Typography variant="caption" color="#177574" sx={{ display: 'block', mb: 1, fontWeight: 'bold' }}>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'flex-start', md: 'center' }, gap: 3, mt: 2 }}>
+                    <Box sx={{ flex: 1, width: '100%' }}>
+                        <Typography variant="body2" sx={{ mb: 1 }}>First fuel type</Typography>
+                        <FormControl fullWidth>
+                            <Select defaultValue="electric" size="small">
+                                <MenuItem value="electric">Electric</MenuItem>
+                                <MenuItem value="gasoline">Gasoline</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                    <Typography variant="caption" color="#177574" sx={{ fontWeight: 'bold', alignSelf: { md: 'flex-end' }, pb: { md: 1 } }}>
                         versus
                     </Typography>
 
-                    <Typography variant="body2" sx={{ mb: 1 }}>Compare with</Typography>
-                    <FormControl fullWidth>
-                        <Select defaultValue="plugin" size="small">
-                            <MenuItem value="plugin">Plug-in hybrid</MenuItem>
-                            <MenuItem value="gasoline">Gasoline</MenuItem>
-                        </Select>
-                    </FormControl>
-                </AccordionDetails>
-            </Accordion>
+                    <Box sx={{ flex: 1, width: '100%' }}>
+                        <Typography variant="body2" sx={{ mb: 1 }}>Compare with</Typography>
+                        <FormControl fullWidth>
+                            <Select defaultValue="plugin" size="small">
+                                <MenuItem value="plugin">Plug-in hybrid</MenuItem>
+                                <MenuItem value="gasoline">Gasoline</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </Box>
+            </Paper>
 
-            <Button
-                variant="contained"
-                fullWidth
-                onClick={onNext}
-                sx={{ bgcolor: '#177574', '&:hover': { bgcolor: '#125c5b' }, py: 1.5, mb: 2, textTransform: 'none', justifyContent: 'space-between' }}
-            >
-                Continue: Your driving profile <span>→</span>
-            </Button>
-            <Typography variant="caption" color="text.secondary">
-                You can go back to review any step.
-            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row-reverse' }, alignItems: 'center', justifyContent: 'space-between' }}>
+                <Button
+                    variant="contained"
+                    onClick={onNext}
+                    sx={{ width: { xs: '100%', sm: 'auto' }, bgcolor: '#177574', '&:hover': { bgcolor: '#125c5b' }, py: 1.5, px: 4, textTransform: 'none' }}
+                >
+                    Continue: Your driving profile <span>&nbsp;→</span>
+                </Button>
+                <Typography variant="caption" color="text.secondary" sx={{ mt: { xs: 2, sm: 0 } }}>
+                    You can go back to review any step.
+                </Typography>
+            </Box>
         </Box>
     );
 }
