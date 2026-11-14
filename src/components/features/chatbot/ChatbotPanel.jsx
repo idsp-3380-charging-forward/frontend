@@ -6,21 +6,56 @@ import {
     Close as CloseIcon,
     OpenInFull as OpenInFullIcon,
     SentimentSatisfiedAlt as SentimentSatisfiedAltIcon,
-} from "@mui/icons-material";
-import { Box, Button, Dialog, DialogContent, IconButton, InputAdornment, OutlinedInput, Paper, Typography } from "@mui/material";
-import { useState } from "react";
+} from "@mui/icons-material"
+import { Box, Button, Dialog, DialogContent, IconButton, InputAdornment, OutlinedInput, Paper, Typography } from "@mui/material"
+import { useState } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
-function InputArea({ message, setMessage, isExpanded }) {
+function InputArea({ message, setMessage, isExpanded, onSend, isLoading }) {
+    function handleSubmit(event) {
+        event.preventDefault()
+
+        if (!message.trim() || isLoading) {
+            return
+        }
+
+        onSend(message)
+    }
+
     return (
-        <Box sx={{ mt: "auto", pt: 2, pb: isExpanded ? 1 : 0, width: "100%" }}>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                mt: "auto",
+                pt: 2,
+                pb: isExpanded ? 1 : 0,
+                width: "100%"
+            }}
+        >
             <OutlinedInput
                 fullWidth
                 placeholder="Type your EV question..."
                 value={message}
+                disabled={isLoading}
                 onChange={(e) => setMessage(e.target.value)}
                 endAdornment={
                     <InputAdornment position="end">
-                        <IconButton sx={{ bgcolor: "#1b4332", color: "white", "&:hover": { bgcolor: "#122c21" }, width: 32, height: 32, borderRadius: 2 }}>
+                        <IconButton
+                            type="submit"
+                            disabled={isLoading || !message.trim()}
+                            sx={{
+                                bgcolor: "#1b4332",
+                                color: "white",
+                                "&:hover": {
+                                    bgcolor: "#122c21"
+                                },
+                                width: 32,
+                                height: 32,
+                                borderRadius: 2
+                            }}
+                        >
                             <ArrowForwardIcon fontSize="small" />
                         </IconButton>
                     </InputAdornment>
@@ -30,16 +65,79 @@ function InputArea({ message, setMessage, isExpanded }) {
                     bgcolor: "white",
                     pr: 1,
                     border: "1px solid #e0e0e0",
-                    "& fieldset": { border: "none" }
+                    "& fieldset": {
+                        border: "none"
+                    }
                 }}
             />
         </Box>
-    );
+    )
 }
 
 export default function ChatbotPanel({ onClose }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [message, setMessage] = useState("");
+    const [messages, setMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    async function handleSend(text) {
+        const trimmedMessage = text.trim()
+
+        if (!trimmedMessage || isLoading) {
+            return
+        }
+
+        const userMessage = {
+            sender: "user",
+            text: trimmedMessage
+        }
+
+        const updatedMessages = [...messages, userMessage]
+
+        setMessages(updatedMessages)
+        setMessage("")
+        setIsLoading(true)
+
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    messages: updatedMessages
+                })
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || "Unable to get chatbot response."
+                )
+            }
+
+            setMessages((currentMessages) => [
+                ...currentMessages,
+                {
+                    sender: "bot",
+                    text: data.reply
+                }
+            ])
+        } catch (error) {
+            console.error("Chatbot error:", error);
+
+            setMessages((currentMessages) => [
+                ...currentMessages,
+                {
+                    sender: "bot",
+                    text: "Sorry, I’m having trouble responding right now. Please try again."
+                }
+            ])
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     const topics = ["What's a ZEV?", "How can I charge an EV?", "How do costs compare?"];
 
@@ -92,6 +190,7 @@ export default function ChatbotPanel({ onClose }) {
                             {topics.map((topic) => (
                                 <Button
                                     key={topic}
+                                    onClick={() => handleSend(topic)}
                                     variant="outlined"
                                     endIcon={<ArrowForwardIcon sx={{ color: "#1b4332" }} />}
                                     sx={{ justifyContent: "space-between", color: "#000", borderColor: "#e0e0e0", bgcolor: "white", py: 1.5, px: 3, borderRadius: 2, textTransform: "none", "&:hover": { bgcolor: "#f5f5f5", borderColor: "#d0d0d0" } }}
@@ -101,7 +200,34 @@ export default function ChatbotPanel({ onClose }) {
                             ))}
                         </Box>
 
-                        <InputArea message={message} setMessage={setMessage} isExpanded={isExpanded} />
+                        {messages.map((item, index) => (
+                            <Box key={`${item.sender}-${index}`}>
+                                <Typography
+                                    component="span"
+                                    fontWeight="bold"
+                                >
+                                    {item.sender === "user" ? "You: " : "Bot: "}
+                                </Typography>
+
+                                {item.sender === "bot" ? (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {item.text}
+                                    </ReactMarkdown>
+                                ) : (
+                                    <Typography component="span">
+                                        {item.text}
+                                    </Typography>
+                                )}
+                            </Box>
+                        ))}
+
+                        {isLoading && (
+                            <Typography>
+                                Thinking...
+                            </Typography>
+                        )}
+
+                        <InputArea message={message} setMessage={setMessage} isExpanded={isExpanded} onSend={handleSend} isLoading={isLoading} />
                         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2, textAlign: "left" }}>
                             Or browse the full guides at your own pace.
                         </Typography>
@@ -142,6 +268,7 @@ export default function ChatbotPanel({ onClose }) {
                     {topics.map((topic) => (
                         <Button
                             key={topic}
+                            onClick={() => handleSend(topic)}
                             variant="contained"
                             endIcon={<ArrowForwardIcon />}
                             sx={{ justifyContent: "space-between", bgcolor: "#9fcddb", color: "#1b4332", py: 1.5, px: 2, borderRadius: 2, textTransform: "none", boxShadow: "none", "&:hover": { bgcolor: "#8abdc9", boxShadow: "none" } }}
@@ -151,7 +278,34 @@ export default function ChatbotPanel({ onClose }) {
                     ))}
                 </Box>
 
-                <InputArea message={message} setMessage={setMessage} isExpanded={isExpanded} />
+                {messages.map((item, index) => (
+                    <Box key={`${item.sender}-${index}`}>
+                        <Typography
+                            component="span"
+                            fontWeight="bold"
+                        >
+                            {item.sender === "user" ? "You: " : "Bot: "}
+                        </Typography>
+
+                        {item.sender === "bot" ? (
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {item.text}
+                            </ReactMarkdown>
+                        ) : (
+                            <Typography component="span">
+                                {item.text}
+                            </Typography>
+                        )}
+                    </Box>
+                ))}
+
+                {isLoading && (
+                    <Typography>
+                        Thinking...
+                    </Typography>
+                )}
+
+                <InputArea message={message} setMessage={setMessage} isExpanded={isExpanded} onSend={handleSend} isLoading={isLoading} />
             </Box>
         </Paper>
     );
