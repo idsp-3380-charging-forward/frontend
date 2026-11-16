@@ -5,6 +5,7 @@ import { useState } from "react";
 import DrivingStep from "./DrivingStep";
 import FuelStep from "./FuelStep";
 import PricingStep from "./PricingStep";
+import { INITIAL_FORM_DATA, PROVINCE_OPTIONS } from "./prototypeData";
 import ReviewStep from "./ReviewStep";
 import VehicleStep from "./VehicleStep";
 
@@ -12,12 +13,28 @@ const steps = ['Choose vehicle', 'Fuel types', 'Driving profile', 'Energy prices
 
 export default function CostCalculatorPage() {
     const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState(INITIAL_FORM_DATA);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const nextStep = () => setStep((prev) => (prev < 5 ? prev + 1 : prev));
     const prevStep = () => setStep((prev) => (prev > 1 ? prev - 1 : prev));
     const goToStep = (targetStep) => setStep(targetStep);
+
+    const handleFormChange = (field, value) => {
+        setFormData((prev) => {
+            if (field === 'province') {
+                const selectedProvince = PROVINCE_OPTIONS.find((p) => p.value === value);
+                return {
+                    ...prev,
+                    province: value,
+                    electricityRate: selectedProvince ? selectedProvince.elecRate : prev.electricityRate,
+                    gasPrice: selectedProvince ? selectedProvince.gasPrice : prev.gasPrice,
+                };
+            }
+            return { ...prev, [field]: value };
+        });
+    };
 
     return (
         <Container maxWidth="md" sx={{ minHeight: '100vh', pt: { xs: 4, md: 8 }, pb: 8, bgcolor: '#fafafa' }}>
@@ -62,11 +79,11 @@ export default function CostCalculatorPage() {
             </Box>
 
             <Box sx={{ bgcolor: 'white', p: { xs: 0, md: 4 }, borderRadius: { xs: 0, md: 2 }, boxShadow: { xs: 'none', md: '0 4px 20px rgba(0,0,0,0.05)' } }}>
-                {step === 1 && <VehicleStep onNext={nextStep} />}
-                {step === 2 && <FuelStep onNext={nextStep} onPrev={prevStep} />}
-                {step === 3 && <DrivingStep onNext={nextStep} onPrev={prevStep} />}
-                {step === 4 && <PricingStep onNext={nextStep} onPrev={prevStep} />}
-                {step === 5 && <ReviewStep onEdit={() => goToStep(1)} />}
+                {step === 1 && <VehicleStep formData={formData} onChange={handleFormChange} onNext={nextStep} />}
+                {step === 2 && <FuelStep formData={formData} onChange={handleFormChange} onNext={nextStep} onPrev={prevStep} />}
+                {step === 3 && <DrivingStep formData={formData} onChange={handleFormChange} onNext={nextStep} onPrev={prevStep} />}
+                {step === 4 && <PricingStep formData={formData} onChange={handleFormChange} onNext={nextStep} onPrev={prevStep} />}
+                {step === 5 && <ReviewStep formData={formData} onEdit={() => goToStep(1)} />}
             </Box>
         </Container>
     );

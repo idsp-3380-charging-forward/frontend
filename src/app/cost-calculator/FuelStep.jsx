@@ -1,8 +1,25 @@
 "use client";
 
 import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from "@mui/material";
+import { FUEL_OPTIONS } from "./prototypeData";
 
-export default function FuelStep({ onNext }) {
+export default function FuelStep({ formData, onChange, onNext }) {
+    const handleFirstFuelChange = (e) => {
+        const newFuel = e.target.value;
+        if (newFuel === formData.secondFuel) {
+            onChange('secondFuel', formData.firstFuel);
+        }
+        onChange('firstFuel', newFuel);
+    };
+
+    const handleSecondFuelChange = (e) => {
+        const newFuel = e.target.value;
+        if (newFuel === formData.firstFuel) {
+            onChange('firstFuel', formData.secondFuel);
+        }
+        onChange('secondFuel', newFuel);
+    };
+
     return (
         <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -19,9 +36,12 @@ export default function FuelStep({ onNext }) {
                     <Box sx={{ flex: 1, width: '100%' }}>
                         <Typography variant="body2" sx={{ mb: 1 }}>First fuel type</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="electric" size="small">
-                                <MenuItem value="electric">Electric</MenuItem>
-                                <MenuItem value="gasoline">Gasoline</MenuItem>
+                            <Select value={formData.firstFuel} onChange={handleFirstFuelChange} size="small">
+                                {FUEL_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>
@@ -33,9 +53,12 @@ export default function FuelStep({ onNext }) {
                     <Box sx={{ flex: 1, width: '100%' }}>
                         <Typography variant="body2" sx={{ mb: 1 }}>Compare with</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="plugin" size="small">
-                                <MenuItem value="plugin">Plug-in hybrid</MenuItem>
-                                <MenuItem value="gasoline">Gasoline</MenuItem>
+                            <Select value={formData.secondFuel} onChange={handleSecondFuelChange} size="small">
+                                {FUEL_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>

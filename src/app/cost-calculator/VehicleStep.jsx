@@ -1,9 +1,10 @@
 "use client";
 
 import { Box, Button, FormControlLabel, Paper, Radio, RadioGroup, Typography } from "@mui/material";
+import { VEHICLE_OPTIONS } from "./prototypeData";
 
-export default function VehicleStep({ onNext }) {
-    const categories = ['Compact sedan', 'Compact SUV', 'Midsize SUV', 'Pickup truck', 'Luxury sedan', 'Minivan'];
+export default function VehicleStep({ formData, onChange, onNext }) {
+    const selectedVehicle = VEHICLE_OPTIONS.find((item) => item.value === formData.vehicle);
 
     return (
         <Box>
@@ -20,22 +21,25 @@ export default function VehicleStep({ onNext }) {
                     Choose the category you want to compare.
                 </Typography>
 
-                <RadioGroup defaultValue="compact-sedan">
+                <RadioGroup
+                    value={formData.vehicle}
+                    onChange={(e) => onChange('vehicle', e.target.value)}
+                >
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                        {categories.map((cat) => (
+                        {VEHICLE_OPTIONS.map((option) => (
                             <Box
-                                key={cat}
+                                key={option.value}
                                 sx={{
                                     border: '1px solid #e0e0e0',
                                     borderRadius: 1,
                                     p: 1,
-                                    bgcolor: cat === 'Compact sedan' ? '#e0f2f1' : 'transparent'
+                                    bgcolor: option.value === formData.vehicle ? '#e0f2f1' : 'transparent'
                                 }}
                             >
                                 <FormControlLabel
-                                    value={cat.toLowerCase().replace(' ', '-')}
+                                    value={option.value}
                                     control={<Radio sx={{ color: '#177574', '&.Mui-checked': { color: '#177574' } }} />}
-                                    label={cat}
+                                    label={option.label}
                                     sx={{ width: '100%', m: 0 }}
                                 />
                             </Box>
@@ -45,7 +49,7 @@ export default function VehicleStep({ onNext }) {
             </Paper>
 
             <Typography variant="body2" sx={{ mb: 3, fontWeight: 'bold' }}>
-                Selected: Compact sedan
+                Selected: {selectedVehicle ? selectedVehicle.label : 'Compact sedan'}
             </Typography>
 
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row-reverse' }, alignItems: 'center', justifyContent: 'space-between' }}>

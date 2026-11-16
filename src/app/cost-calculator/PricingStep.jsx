@@ -1,8 +1,15 @@
 "use client";
 
 import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from "@mui/material";
+import { ELECTRICITY_RATE_OPTIONS, GAS_PRICE_OPTIONS } from "./prototypeData";
 
-export default function PricingStep({ onNext }) {
+export default function PricingStep({ formData, onChange, onNext }) {
+    const gasOptions = GAS_PRICE_OPTIONS.some((opt) => opt.value === formData.gasPrice)
+        ? GAS_PRICE_OPTIONS
+        : [...GAS_PRICE_OPTIONS, { value: formData.gasPrice, label: `$${formData.gasPrice} / L` }].sort(
+            (a, b) => Number(a.value) - Number(b.value)
+        );
+
     return (
         <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -22,8 +29,16 @@ export default function PricingStep({ onNext }) {
                     <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" sx={{ mb: 1 }}>Electricity rate</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="12.7" size="small">
-                                <MenuItem value="12.7">12.7 cents/kWh</MenuItem>
+                            <Select
+                                value={formData.electricityRate}
+                                onChange={(e) => onChange('electricityRate', e.target.value)}
+                                size="small"
+                            >
+                                {ELECTRICITY_RATE_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>
@@ -31,8 +46,16 @@ export default function PricingStep({ onNext }) {
                     <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" sx={{ mb: 1 }}>Gasoline price</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="1.740" size="small">
-                                <MenuItem value="1.740">$1.740 / L</MenuItem>
+                            <Select
+                                value={formData.gasPrice}
+                                onChange={(e) => onChange('gasPrice', e.target.value)}
+                                size="small"
+                            >
+                                {gasOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>

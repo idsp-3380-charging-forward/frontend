@@ -1,8 +1,9 @@
 "use client";
 
 import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from "@mui/material";
+import { ANNUAL_KM_OPTIONS, HIGHWAY_OPTIONS, OWNERSHIP_OPTIONS, PROVINCE_OPTIONS } from "./prototypeData";
 
-export default function DrivingStep({ onNext }) {
+export default function DrivingStep({ formData, onChange, onNext }) {
     return (
         <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -19,9 +20,16 @@ export default function DrivingStep({ onNext }) {
                     <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>Province / territory</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="bc" size="small">
-                                <MenuItem value="bc">British Columbia</MenuItem>
-                                <MenuItem value="mb">Manitoba</MenuItem>
+                            <Select
+                                value={formData.province}
+                                onChange={(e) => onChange('province', e.target.value)}
+                                size="small"
+                            >
+                                {PROVINCE_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>
@@ -29,8 +37,16 @@ export default function DrivingStep({ onNext }) {
                     <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>How long will you keep the car?</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="4" size="small">
-                                <MenuItem value="4">4 years</MenuItem>
+                            <Select
+                                value={formData.ownershipYears}
+                                onChange={(e) => onChange('ownershipYears', e.target.value)}
+                                size="small"
+                            >
+                                {OWNERSHIP_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
@@ -41,8 +57,16 @@ export default function DrivingStep({ onNext }) {
                     <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>How far do you drive in a year?</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="43000" size="small">
-                                <MenuItem value="43000">43,000 km</MenuItem>
+                            <Select
+                                value={formData.annualKm}
+                                onChange={(e) => onChange('annualKm', e.target.value)}
+                                size="small"
+                            >
+                                {ANNUAL_KM_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
@@ -53,8 +77,16 @@ export default function DrivingStep({ onNext }) {
                     <Box>
                         <Typography variant="body2" sx={{ mb: 1 }}>How much driving is on the highway?</Typography>
                         <FormControl fullWidth>
-                            <Select defaultValue="50" size="small">
-                                <MenuItem value="50">50%</MenuItem>
+                            <Select
+                                value={formData.highwayPct}
+                                onChange={(e) => onChange('highwayPct', e.target.value)}
+                                size="small"
+                            >
+                                {HIGHWAY_OPTIONS.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
