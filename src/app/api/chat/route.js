@@ -20,7 +20,7 @@ export async function POST(request) {
 
     for (let attempt = 1; attempt <= 3; attempt++) {
         response = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent',
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent',
             {
                 method: 'POST',
                 headers: {
