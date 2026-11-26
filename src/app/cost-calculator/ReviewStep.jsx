@@ -17,7 +17,9 @@ export default function ReviewStep({
     onShowResults,
     onBackToReview,
     onEdit,
+    onGoToStep,
 }) {
+    const handleGoTo = onGoToStep || onEdit;
     const vehicleObj = VEHICLES_DATA.find((v) => v.id === formData.vehicle) || VEHICLES_DATA[0];
     const firstFuelLabel =
         FUEL_OPTIONS.find((f) => f.value === formData.firstFuel)?.shortLabel || formData.firstFuel;
@@ -44,84 +46,85 @@ export default function ReviewStep({
         );
     }
 
+    const reviewItems = [
+        { label: "Vehicle", value: vehicleObj.label, step: 1 },
+        { label: "Fuel types", value: `${firstFuelLabel} vs ${secondFuelLabel.toLowerCase()}`, step: 2 },
+        { label: "Province / territory", value: provinceName, step: 3 },
+        { label: "Ownership period", value: `${formData.ownershipYears} years`, step: 3 },
+        { label: "Annual driving", value: `${Number(formData.annualKm).toLocaleString("en-CA")} km`, step: 3 },
+        { label: "Highway driving", value: `${formData.highwayPct}%`, step: 3 },
+        { label: "Electricity rate", value: `${formData.electricityRate} cents/kWh`, step: 4 },
+        { label: "Gasoline price", value: `$${Number(formData.gasPrice).toFixed(3)} / L`, step: 4 },
+    ];
+
     return (
         <Box>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
                 Review your comparison
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                Confirm your selections before viewing your full Total Cost of Ownership (TCO) results.
+                Check the inputs before comparing costs.
             </Typography>
 
-            <Box sx={{ bgcolor: "#b2dfdb", p: { xs: 3, md: 4 }, borderRadius: 2, mb: 4 }}>
-                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Vehicle
-                        </Typography>
-                        <Typography fontWeight="bold">{vehicleObj.label}</Typography>
+            <Box
+                sx={{
+                    bgcolor: "#cce5e2",
+                    p: { xs: 2.5, md: 3.5 },
+                    borderRadius: 2.5,
+                    mb: 4,
+                }}
+            >
+                {reviewItems.map((item, idx) => (
+                    <Box
+                        key={item.label}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            py: 1.5,
+                            borderBottom: idx < reviewItems.length - 1 ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
+                        }}
+                    >
+                        <Box>
+                            <Typography variant="caption" sx={{ color: "#37474f", display: "block" }}>
+                                {item.label}
+                            </Typography>
+                            <Typography fontWeight="bold" sx={{ color: "#0f2f2e", fontSize: { xs: "0.95rem", md: "1.05rem" } }}>
+                                {item.value}
+                            </Typography>
+                        </Box>
+
+                        <Button
+                            variant="text"
+                            size="small"
+                            onClick={() => handleGoTo(item.step)}
+                            sx={{
+                                color: "#0d5c58",
+                                textTransform: "none",
+                                fontWeight: "bold",
+                                "&:hover": { textDecoration: "underline", bgcolor: "transparent" },
+                            }}
+                        >
+                            Edit
+                        </Button>
                     </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Fuel types
-                        </Typography>
-                        <Typography fontWeight="bold">
-                            {firstFuelLabel} vs {secondFuelLabel.toLowerCase()}
-                        </Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Province / territory
-                        </Typography>
-                        <Typography fontWeight="bold">{provinceName}</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Ownership period
-                        </Typography>
-                        <Typography fontWeight="bold">{formData.ownershipYears} years</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Annual driving
-                        </Typography>
-                        <Typography fontWeight="bold">
-                            {Number(formData.annualKm).toLocaleString("en-CA")} km
-                        </Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Highway driving
-                        </Typography>
-                        <Typography fontWeight="bold">{formData.highwayPct}%</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Electricity rate
-                        </Typography>
-                        <Typography fontWeight="bold">{formData.electricityRate} cents/kWh</Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                            Gasoline price
-                        </Typography>
-                        <Typography fontWeight="bold">${Number(formData.gasPrice).toFixed(3)} / L</Typography>
-                    </Box>
-                </Box>
+                ))}
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2, alignItems: "center", mb: 3 }}>
                 <Button
-                    variant="outlined"
+                    variant="contained"
                     onClick={onEdit}
                     sx={{
                         width: { xs: "100%", md: "auto" },
-                        borderColor: "#177574",
-                        color: "#177574",
+                        bgcolor: "#b0bec5",
+                        color: "#263238",
+                        "&:hover": { bgcolor: "#90a4ae" },
                         py: 1.5,
                         px: 3,
                         textTransform: "none",
                         fontWeight: "bold",
+                        boxShadow: "none",
                     }}
                 >
                     ← Edit comparison inputs

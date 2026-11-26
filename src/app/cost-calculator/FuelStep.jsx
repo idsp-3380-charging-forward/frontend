@@ -7,17 +7,25 @@ export default function FuelStep({ formData, onChange, onNext }) {
     const handleFirstFuelChange = (e) => {
         const newFuel = e.target.value;
         if (newFuel === formData.secondFuel) {
-            onChange("secondFuel", formData.firstFuel);
+            onChange({
+                firstFuel: newFuel,
+                secondFuel: formData.firstFuel,
+            });
+        } else {
+            onChange("firstFuel", newFuel);
         }
-        onChange("firstFuel", newFuel);
     };
 
     const handleSecondFuelChange = (e) => {
         const newFuel = e.target.value;
         if (newFuel === formData.firstFuel) {
-            onChange("firstFuel", formData.secondFuel);
+            onChange({
+                firstFuel: formData.secondFuel,
+                secondFuel: newFuel,
+            });
+        } else {
+            onChange("secondFuel", newFuel);
         }
-        onChange("secondFuel", newFuel);
     };
 
     return (
@@ -47,7 +55,7 @@ export default function FuelStep({ formData, onChange, onNext }) {
                             >
                                 {FUEL_OPTIONS.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
-                                        {option.label}
+                                        {option.shortLabel || option.label}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -70,7 +78,7 @@ export default function FuelStep({ formData, onChange, onNext }) {
                             >
                                 {FUEL_OPTIONS.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
-                                        {option.label}
+                                        {option.shortLabel || option.label}
                                     </MenuItem>
                                 ))}
                             </Select>

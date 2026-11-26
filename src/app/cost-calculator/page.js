@@ -64,9 +64,12 @@ export default function CostCalculatorPage() {
         setViewMode(targetStep === 5 ? "review" : "wizard");
     };
 
-    const handleFormChange = (field, value) => {
+    const handleFormChange = (fieldOrObject, value) => {
         setFormData((prev) => {
-            if (field === "province") {
+            if (typeof fieldOrObject === "object" && fieldOrObject !== null) {
+                return { ...prev, ...fieldOrObject };
+            }
+            if (fieldOrObject === "province") {
                 const selectedProvince = PROVINCE_OPTIONS.find((p) => p.value === value);
                 return {
                     ...prev,
@@ -75,7 +78,7 @@ export default function CostCalculatorPage() {
                     gasPrice: selectedProvince ? selectedProvince.gasPrice : prev.gasPrice,
                 };
             }
-            return { ...prev, [field]: value };
+            return { ...prev, [fieldOrObject]: value };
         });
     };
 
@@ -196,6 +199,7 @@ export default function CostCalculatorPage() {
                             onShowResults={() => setViewMode("results")}
                             onBackToReview={() => setViewMode("review")}
                             onEdit={() => goToStep(1)}
+                            onGoToStep={goToStep}
                         />
                     )}
                 </Box>

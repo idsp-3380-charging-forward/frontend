@@ -216,6 +216,7 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                     placeholder={String(varA?.maintenance_cad_annual || "")}
                                     value={formData.maintenanceOverrideA}
                                     onChange={(e) => onChange("maintenanceOverrideA", e.target.value)}
+                                    slotProps={{ htmlInput: { min: "0", step: "50" } }}
                                 />
                                 <TextField
                                     fullWidth
@@ -225,6 +226,7 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                     placeholder={String(varA?.insurance_cad_annual || "")}
                                     value={formData.insuranceOverrideA}
                                     onChange={(e) => onChange("insuranceOverrideA", e.target.value)}
+                                    slotProps={{ htmlInput: { min: "0", step: "50" } }}
                                 />
                                 <TextField
                                     fullWidth
@@ -234,6 +236,7 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                     placeholder={String(varA?.depreciation_pct_annual || "")}
                                     value={formData.depreciationOverrideA}
                                     onChange={(e) => onChange("depreciationOverrideA", e.target.value)}
+                                    slotProps={{ htmlInput: { min: "0", max: "90", step: "1" } }}
                                 />
                             </Box>
                         </Box>
@@ -251,6 +254,7 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                     placeholder={String(varB?.maintenance_cad_annual || "")}
                                     value={formData.maintenanceOverrideB}
                                     onChange={(e) => onChange("maintenanceOverrideB", e.target.value)}
+                                    slotProps={{ htmlInput: { min: "0", step: "50" } }}
                                 />
                                 <TextField
                                     fullWidth
@@ -260,6 +264,7 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                     placeholder={String(varB?.insurance_cad_annual || "")}
                                     value={formData.insuranceOverrideB}
                                     onChange={(e) => onChange("insuranceOverrideB", e.target.value)}
+                                    slotProps={{ htmlInput: { min: "0", step: "50" } }}
                                 />
                                 <TextField
                                     fullWidth
@@ -269,6 +274,7 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                     placeholder={String(varB?.depreciation_pct_annual || "")}
                                     value={formData.depreciationOverrideB}
                                     onChange={(e) => onChange("depreciationOverrideB", e.target.value)}
+                                    slotProps={{ htmlInput: { min: "0", max: "90", step: "1" } }}
                                 />
                             </Box>
                         </Box>
