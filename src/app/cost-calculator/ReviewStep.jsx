@@ -1,14 +1,14 @@
 "use client";
 
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Button, Divider, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import Link from "next/link";
 import {
-    calculateDemoEstimate,
+    calculateTcoComparison,
     FUEL_OPTIONS,
     INITIAL_FORM_DATA,
-    PROVINCE_OPTIONS,
-    VEHICLE_OPTIONS,
-} from "./prototypeData";
+    PROVINCES_DATA,
+    VEHICLES_DATA,
+} from "./calculatorData";
 
 const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-CA", {
@@ -18,18 +18,29 @@ const formatCurrency = (amount) =>
     }).format(amount);
 
 export default function ReviewStep({ formData = INITIAL_FORM_DATA, onEdit }) {
-    const vehicleLabel =
-        VEHICLE_OPTIONS.find((v) => v.value === formData.vehicle)?.label || "Compact sedan";
+    const vehicleObj = VEHICLES_DATA.find((v) => v.id === formData.vehicle) || VEHICLES_DATA[0];
     const firstFuelLabel =
-        FUEL_OPTIONS.find((f) => f.value === formData.firstFuel)?.label || "Electric";
+        FUEL_OPTIONS.find((f) => f.value === formData.firstFuel)?.shortLabel || formData.firstFuel;
     const secondFuelLabel =
-        FUEL_OPTIONS.find((f) => f.value === formData.secondFuel)?.label || "Plug-in hybrid";
-    const provinceLabel =
-        PROVINCE_OPTIONS.find((p) => p.value === formData.province)?.label || "British Columbia";
+        FUEL_OPTIONS.find((f) => f.value === formData.secondFuel)?.shortLabel || formData.secondFuel;
+    const provinceName =
+        PROVINCES_DATA[formData.province]?.name || "British Columbia";
 
-    const estimate = calculateDemoEstimate(formData);
+    const result = calculateTcoComparison(formData);
+    if (!result) return null;
+
+    const { vehicleA, vehicleB, years, savings, cheaperFuel, breakEvenYear } = result;
     const cheaperFuelLabel =
-        FUEL_OPTIONS.find((f) => f.value === estimate.cheaperFuel)?.label || firstFuelLabel;
+        FUEL_OPTIONS.find((f) => f.value === cheaperFuel)?.shortLabel || firstFuelLabel;
+
+    const breakdownRows = [
+        { label: "Purchase price (net of rebates)", a: vehicleA.netPrice, b: vehicleB.netPrice },
+        { label: `Fuel / electricity (${years} yrs)`, a: vehicleA.totalFuel, b: vehicleB.totalFuel },
+        { label: `Maintenance (${years} yrs)`, a: vehicleA.totalMaint, b: vehicleB.totalMaint },
+        { label: `Insurance (${years} yrs)`, a: vehicleA.totalInsur, b: vehicleB.totalInsur },
+        { label: "Resale value (credit)", a: -vehicleA.resale, b: -vehicleB.resale },
+        { label: `Total Cost of Ownership (${years} yrs)`, a: vehicleA.total, b: vehicleB.total, isTotal: true },
+    ];
 
     return (
         <Box>
@@ -37,14 +48,14 @@ export default function ReviewStep({ formData = INITIAL_FORM_DATA, onEdit }) {
                 Review your comparison
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                Check the inputs before comparing costs.
+                Review your inputs and full Total Cost of Ownership (TCO) breakdown.
             </Typography>
 
             <Box sx={{ bgcolor: '#b2dfdb', p: { xs: 3, md: 4 }, borderRadius: 2, mb: 4 }}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
                     <Box>
                         <Typography variant="caption" color="text.secondary" display="block">Vehicle</Typography>
-                        <Typography fontWeight="bold">{vehicleLabel}</Typography>
+                        <Typography fontWeight="bold">{vehicleObj.label}</Typography>
                     </Box>
                     <Box>
                         <Typography variant="caption" color="text.secondary" display="block">Fuel types</Typography>
@@ -54,7 +65,7 @@ export default function ReviewStep({ formData = INITIAL_FORM_DATA, onEdit }) {
                     </Box>
                     <Box>
                         <Typography variant="caption" color="text.secondary" display="block">Province / territory</Typography>
-                        <Typography fontWeight="bold">{provinceLabel}</Typography>
+                        <Typography fontWeight="bold">{provinceName}</Typography>
                     </Box>
                     <Box>
                         <Typography variant="caption" color="text.secondary" display="block">Ownership period</Typography>
@@ -83,44 +94,87 @@ export default function ReviewStep({ formData = INITIAL_FORM_DATA, onEdit }) {
 
             <Box sx={{ border: '1px solid #e0e0e0', p: 3, borderRadius: 2, mb: 4 }}>
                 <Typography fontWeight="bold" gutterBottom>
-                    Estimated energy &amp; fuel cost comparison
+                    Total Cost of Ownership (TCO) comparison
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                    Demo estimate based on your selected vehicle, driving profile, and local energy rates.
+                    Includes average MSRP, federal/provincial rebates, fuel, maintenance, insurance, and estimated resale value.
                 </Typography>
 
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 3 }}>
                     <Box sx={{ p: 2.5, bgcolor: '#e0f2f1', borderRadius: 1.5, border: '1px solid #b2dfdb' }}>
-                        <Typography variant="caption" color="#177574" fontWeight="bold" display="block" gutterBottom>
+                        <Typography variant="caption" color="#177574" fontWeight="bold" display="block">
                             {firstFuelLabel.toUpperCase()}
                         </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+                            e.g., {vehicleA.examples.slice(0, 2).join(", ")}
+                        </Typography>
                         <Typography variant="h5" fontWeight="bold" sx={{ mb: 0.5 }}>
-                            {formatCurrency(estimate.totalFirst)}
+                            {formatCurrency(vehicleA.total)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" display="block">
-                            Total over {estimate.years} years ({formatCurrency(estimate.annualFirst)} / yr)
+                            {formatCurrency(vehicleA.monthlyAvg)}/mo · {(vehicleA.perKm * 100).toFixed(1)}¢/km
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block">
+                            Annual fuel: {formatCurrency(vehicleA.annualFuel)} · CO₂: {Math.round(vehicleA.annualCo2Kg).toLocaleString("en-CA")} kg/yr
                         </Typography>
                     </Box>
 
                     <Box sx={{ p: 2.5, bgcolor: '#fafafa', borderRadius: 1.5, border: '1px solid #e0e0e0' }}>
-                        <Typography variant="caption" color="text.secondary" fontWeight="bold" display="block" gutterBottom>
+                        <Typography variant="caption" color="text.secondary" fontWeight="bold" display="block">
                             {secondFuelLabel.toUpperCase()}
                         </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+                            e.g., {vehicleB.examples.slice(0, 2).join(", ")}
+                        </Typography>
                         <Typography variant="h5" fontWeight="bold" sx={{ mb: 0.5 }}>
-                            {formatCurrency(estimate.totalSecond)}
+                            {formatCurrency(vehicleB.total)}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" display="block">
-                            Total over {estimate.years} years ({formatCurrency(estimate.annualSecond)} / yr)
+                            {formatCurrency(vehicleB.monthlyAvg)}/mo · {(vehicleB.perKm * 100).toFixed(1)}¢/km
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block">
+                            Annual fuel: {formatCurrency(vehicleB.annualFuel)} · CO₂: {Math.round(vehicleB.annualCo2Kg).toLocaleString("en-CA")} kg/yr
                         </Typography>
                     </Box>
+                </Box>
+
+                <Box sx={{ overflowX: 'auto', mb: 2.5 }}>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow sx={{ bgcolor: '#fafafa' }}>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Cost Category</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>{firstFuelLabel}</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>{secondFuelLabel}</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {breakdownRows.map((row) => (
+                                <TableRow
+                                    key={row.label}
+                                    sx={row.isTotal ? { bgcolor: '#f5fafa' } : undefined}
+                                >
+                                    <TableCell sx={{ fontWeight: row.isTotal ? 'bold' : 'normal' }}>
+                                        {row.label}
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: row.isTotal ? 'bold' : 'normal' }}>
+                                        {row.a < 0 ? `-${formatCurrency(Math.abs(row.a))}` : formatCurrency(row.a)}
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: row.isTotal ? 'bold' : 'normal' }}>
+                                        {row.b < 0 ? `-${formatCurrency(Math.abs(row.b))}` : formatCurrency(row.b)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </Box>
 
                 <Divider sx={{ mb: 2 }} />
 
                 <Typography variant="body2" fontWeight="bold" color="#177574">
-                    {estimate.totalSavings === 0
-                        ? `Both fuel options have the same estimated ${estimate.years}-year energy cost.`
-                        : `Estimated ${estimate.years}-year savings: ${formatCurrency(estimate.totalSavings)} with ${cheaperFuelLabel}`}
+                    {savings < 100
+                        ? `${firstFuelLabel} and ${secondFuelLabel} cost about the same over ${years} years.`
+                        : `${cheaperFuelLabel} saves an estimated ${formatCurrency(savings)} over ${years} years`}
+                    {breakEvenYear ? ` (break-even at Year ${breakEvenYear}).` : "."}
                 </Typography>
             </Box>
 
