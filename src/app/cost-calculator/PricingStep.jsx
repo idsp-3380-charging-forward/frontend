@@ -47,11 +47,13 @@ export default function PricingStep({ formData, onChange, onNext }) {
                             fullWidth
                             size="small"
                             type="number"
-                            inputProps={{ step: "0.1", min: "0" }}
                             value={formData.electricityRate}
                             onChange={(e) => onChange('electricityRate', e.target.value)}
-                            InputProps={{
-                                endAdornment: <InputAdornment position="end">cents/kWh</InputAdornment>,
+                            slotProps={{
+                                htmlInput: { step: "0.1", min: "0" },
+                                input: {
+                                    endAdornment: <InputAdornment position="end">cents/kWh</InputAdornment>,
+                                },
                             }}
                         />
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
@@ -65,12 +67,14 @@ export default function PricingStep({ formData, onChange, onNext }) {
                             fullWidth
                             size="small"
                             type="number"
-                            inputProps={{ step: "0.001", min: "0" }}
                             value={formData.gasPrice}
                             onChange={(e) => onChange('gasPrice', e.target.value)}
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                endAdornment: <InputAdornment position="end">/ L</InputAdornment>,
+                            slotProps={{
+                                htmlInput: { step: "0.001", min: "0" },
+                                input: {
+                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    endAdornment: <InputAdornment position="end">/ L</InputAdornment>,
+                                },
                             }}
                         />
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
@@ -102,11 +106,13 @@ export default function PricingStep({ formData, onChange, onNext }) {
                             fullWidth
                             size="small"
                             type="number"
-                            inputProps={{ step: "100", min: "0" }}
                             value={formData.otherIncentivesA}
                             onChange={(e) => onChange('otherIncentivesA', e.target.value)}
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            slotProps={{
+                                htmlInput: { step: "100", min: "0" },
+                                input: {
+                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                },
                             }}
                         />
                     </Box>
@@ -126,11 +132,13 @@ export default function PricingStep({ formData, onChange, onNext }) {
                             fullWidth
                             size="small"
                             type="number"
-                            inputProps={{ step: "100", min: "0" }}
                             value={formData.otherIncentivesB}
                             onChange={(e) => onChange('otherIncentivesB', e.target.value)}
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            slotProps={{
+                                htmlInput: { step: "100", min: "0" },
+                                input: {
+                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                },
                             }}
                         />
                     </Box>
