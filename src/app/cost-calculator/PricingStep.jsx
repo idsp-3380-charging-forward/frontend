@@ -1,7 +1,24 @@
 "use client";
 
-import { Box, Button, InputAdornment, Paper, TextField, Typography } from "@mui/material";
-import { FUEL_OPTIONS, getIncentives, getVariant, INCENTIVES_DATA, PROVINCES_DATA } from "./calculatorData";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Box,
+    Button,
+    InputAdornment,
+    Paper,
+    TextField,
+    Typography,
+} from "@mui/material";
+import {
+    FUEL_OPTIONS,
+    getIncentives,
+    getVariant,
+    INCENTIVES_DATA,
+    PROVINCES_DATA,
+} from "./calculatorData";
 
 const formatCurrency = (amount) =>
     new Intl.NumberFormat("en-CA", {
@@ -18,8 +35,10 @@ export default function PricingStep({ formData, onChange, onNext }) {
     const incA = getIncentives(formData.firstFuel, formData.province);
     const incB = getIncentives(formData.secondFuel, formData.province);
 
-    const labelA = FUEL_OPTIONS.find((f) => f.value === formData.firstFuel)?.shortLabel || formData.firstFuel;
-    const labelB = FUEL_OPTIONS.find((f) => f.value === formData.secondFuel)?.shortLabel || formData.secondFuel;
+    const labelA =
+        FUEL_OPTIONS.find((f) => f.value === formData.firstFuel)?.shortLabel || formData.firstFuel;
+    const labelB =
+        FUEL_OPTIONS.find((f) => f.value === formData.secondFuel)?.shortLabel || formData.secondFuel;
 
     const msrpCap = INCENTIVES_DATA.federal.msrp_cap;
     const eligibleA = varA && (msrpCap == null || varA.msrp_avg <= msrpCap);
@@ -34,21 +53,25 @@ export default function PricingStep({ formData, onChange, onNext }) {
                 Review the values from your province or territory and adjust as needed.
             </Typography>
 
-            <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', p: 3, mb: 2 }}>
-                <Typography fontWeight="bold" gutterBottom>Energy &amp; fuel pricing</Typography>
-                <Typography variant="body2" sx={{ mb: 3 }}>
+            <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", p: 3, mb: 2, borderRadius: 2 }}>
+                <Typography fontWeight="bold" gutterBottom>
+                    Energy &amp; fuel pricing
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                     Auto-filled from {provinceData.name}. You can override these values.
                 </Typography>
 
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+                <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3 }}>
                     <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2" sx={{ mb: 1 }}>Electricity rate</Typography>
+                        <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+                            Electricity rate
+                        </Typography>
                         <TextField
                             fullWidth
                             size="small"
                             type="number"
                             value={formData.electricityRate}
-                            onChange={(e) => onChange('electricityRate', e.target.value)}
+                            onChange={(e) => onChange("electricityRate", e.target.value)}
                             slotProps={{
                                 htmlInput: { step: "0.1", min: "0" },
                                 input: {
@@ -56,19 +79,21 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                 },
                             }}
                         />
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
                             Source: {provinceData.source} · {provinceData.updated}
                         </Typography>
                     </Box>
 
                     <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2" sx={{ mb: 1 }}>Gasoline price</Typography>
+                        <Typography variant="body2" fontWeight="medium" sx={{ mb: 1 }}>
+                            Gasoline price
+                        </Typography>
                         <TextField
                             fullWidth
                             size="small"
                             type="number"
                             value={formData.gasPrice}
-                            onChange={(e) => onChange('gasPrice', e.target.value)}
+                            onChange={(e) => onChange("gasPrice", e.target.value)}
                             slotProps={{
                                 htmlInput: { step: "0.001", min: "0" },
                                 input: {
@@ -77,154 +102,213 @@ export default function PricingStep({ formData, onChange, onNext }) {
                                 },
                             }}
                         />
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }}>
                             Source: {provinceData.source} · {provinceData.updated}
                         </Typography>
                     </Box>
                 </Box>
             </Paper>
 
-            <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', p: 3, mb: 2 }}>
-                <Typography fontWeight="bold" gutterBottom>Incentives &amp; rebates</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                    {INCENTIVES_DATA.federal.notes} (MSRP cap: {formatCurrency(msrpCap)}).
-                </Typography>
+            <Accordion
+                disableGutters
+                elevation={0}
+                defaultExpanded
+                sx={{ border: "1px solid #e0e0e0", borderRadius: "8px !important", mb: 2, "&:before": { display: "none" } }}
+            >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight="bold">Incentives &amp; rebates</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ pt: 0, pb: 3 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+                        {INCENTIVES_DATA.federal.notes} (MSRP cap: {formatCurrency(msrpCap)}).
+                    </Typography>
 
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Box sx={{ p: 2, bgcolor: '#fafafa', borderRadius: 1, border: '1px solid #eeeeee' }}>
-                        <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                            {labelA} (Avg. MSRP {formatCurrency(varA?.msrp_avg || 0)})
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            Federal rebate: <strong>{eligibleA ? formatCurrency(incA.federal) : '$0 (above MSRP cap)'}</strong>
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 2 }}>
-                            Provincial rebate ({provinceData.name}): <strong>{formatCurrency(incA.provincial)}</strong>
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 0.75 }}>Other incentives ({labelA})</Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            type="number"
-                            value={formData.otherIncentivesA}
-                            onChange={(e) => onChange('otherIncentivesA', e.target.value)}
-                            slotProps={{
-                                htmlInput: { step: "100", min: "0" },
-                                input: {
-                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                },
-                            }}
-                        />
-                    </Box>
-
-                    <Box sx={{ p: 2, bgcolor: '#fafafa', borderRadius: 1, border: '1px solid #eeeeee' }}>
-                        <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                            {labelB} (Avg. MSRP {formatCurrency(varB?.msrp_avg || 0)})
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            Federal rebate: <strong>{eligibleB ? formatCurrency(incB.federal) : '$0 (above MSRP cap)'}</strong>
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 2 }}>
-                            Provincial rebate ({provinceData.name}): <strong>{formatCurrency(incB.provincial)}</strong>
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 0.75 }}>Other incentives ({labelB})</Typography>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            type="number"
-                            value={formData.otherIncentivesB}
-                            onChange={(e) => onChange('otherIncentivesB', e.target.value)}
-                            slotProps={{
-                                htmlInput: { step: "100", min: "0" },
-                                input: {
-                                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                },
-                            }}
-                        />
-                    </Box>
-                </Box>
-            </Paper>
-
-            <Paper elevation={0} sx={{ border: '1px solid #e0e0e0', p: 3, mb: 4 }}>
-                <Typography fontWeight="bold" gutterBottom>Advanced options</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                    Leave blank to use category averages, or enter custom annual estimates.
-                </Typography>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-                    <Box>
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1.5 }}>{labelA}</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+                        <Box sx={{ p: 2, bgcolor: "#fafafa", borderRadius: 1.5, border: "1px solid #eeeeee" }}>
+                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                                {labelA} (Avg. MSRP {formatCurrency(varA?.msrp_avg || 0)})
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                Federal rebate:{" "}
+                                <strong>{eligibleA ? formatCurrency(incA.federal) : "$0 (above MSRP cap)"}</strong>
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 2 }}>
+                                Provincial rebate ({provinceData.name}):{" "}
+                                <strong>{formatCurrency(incA.provincial)}</strong>
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 0.75 }}>
+                                Other incentives ({labelA})
+                            </Typography>
                             <TextField
                                 fullWidth
                                 size="small"
                                 type="number"
-                                label="Annual maintenance (CAD)"
-                                placeholder={String(varA?.maintenance_cad_annual || '')}
-                                value={formData.maintenanceOverrideA}
-                                onChange={(e) => onChange('maintenanceOverrideA', e.target.value)}
+                                value={formData.otherIncentivesA}
+                                onChange={(e) => onChange("otherIncentivesA", e.target.value)}
+                                slotProps={{
+                                    htmlInput: { step: "100", min: "0" },
+                                    input: {
+                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    },
+                                }}
                             />
+                        </Box>
+
+                        <Box sx={{ p: 2, bgcolor: "#fafafa", borderRadius: 1.5, border: "1px solid #eeeeee" }}>
+                            <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                                {labelB} (Avg. MSRP {formatCurrency(varB?.msrp_avg || 0)})
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                                Federal rebate:{" "}
+                                <strong>{eligibleB ? formatCurrency(incB.federal) : "$0 (above MSRP cap)"}</strong>
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 2 }}>
+                                Provincial rebate ({provinceData.name}):{" "}
+                                <strong>{formatCurrency(incB.provincial)}</strong>
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 0.75 }}>
+                                Other incentives ({labelB})
+                            </Typography>
                             <TextField
                                 fullWidth
                                 size="small"
                                 type="number"
-                                label="Annual insurance (CAD)"
-                                placeholder={String(varA?.insurance_cad_annual || '')}
-                                value={formData.insuranceOverrideA}
-                                onChange={(e) => onChange('insuranceOverrideA', e.target.value)}
-                            />
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="number"
-                                label="Annual depreciation (%)"
-                                placeholder={String(varA?.depreciation_pct_annual || '')}
-                                value={formData.depreciationOverrideA}
-                                onChange={(e) => onChange('depreciationOverrideA', e.target.value)}
+                                value={formData.otherIncentivesB}
+                                onChange={(e) => onChange("otherIncentivesB", e.target.value)}
+                                slotProps={{
+                                    htmlInput: { step: "100", min: "0" },
+                                    input: {
+                                        startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                                    },
+                                }}
                             />
                         </Box>
                     </Box>
+                </AccordionDetails>
+            </Accordion>
 
-                    <Box>
-                        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1.5 }}>{labelB}</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="number"
-                                label="Annual maintenance (CAD)"
-                                placeholder={String(varB?.maintenance_cad_annual || '')}
-                                value={formData.maintenanceOverrideB}
-                                onChange={(e) => onChange('maintenanceOverrideB', e.target.value)}
-                            />
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="number"
-                                label="Annual insurance (CAD)"
-                                placeholder={String(varB?.insurance_cad_annual || '')}
-                                value={formData.insuranceOverrideB}
-                                onChange={(e) => onChange('insuranceOverrideB', e.target.value)}
-                            />
-                            <TextField
-                                fullWidth
-                                size="small"
-                                type="number"
-                                label="Annual depreciation (%)"
-                                placeholder={String(varB?.depreciation_pct_annual || '')}
-                                value={formData.depreciationOverrideB}
-                                onChange={(e) => onChange('depreciationOverrideB', e.target.value)}
-                            />
+            <Accordion
+                disableGutters
+                elevation={0}
+                sx={{ border: "1px solid #e0e0e0", borderRadius: "8px !important", mb: 2, "&:before": { display: "none" } }}
+            >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight="bold">
+                        Advanced options (maintenance, insurance, depreciation)
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ pt: 0, pb: 3 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+                        Leave blank to use category averages, or enter custom annual estimates.
+                    </Typography>
+
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+                        <Box>
+                            <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1.5 }}>
+                                {labelA}
+                            </Typography>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="number"
+                                    label="Annual maintenance (CAD)"
+                                    placeholder={String(varA?.maintenance_cad_annual || "")}
+                                    value={formData.maintenanceOverrideA}
+                                    onChange={(e) => onChange("maintenanceOverrideA", e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="number"
+                                    label="Annual insurance (CAD)"
+                                    placeholder={String(varA?.insurance_cad_annual || "")}
+                                    value={formData.insuranceOverrideA}
+                                    onChange={(e) => onChange("insuranceOverrideA", e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="number"
+                                    label="Annual depreciation (%)"
+                                    placeholder={String(varA?.depreciation_pct_annual || "")}
+                                    value={formData.depreciationOverrideA}
+                                    onChange={(e) => onChange("depreciationOverrideA", e.target.value)}
+                                />
+                            </Box>
+                        </Box>
+
+                        <Box>
+                            <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1.5 }}>
+                                {labelB}
+                            </Typography>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="number"
+                                    label="Annual maintenance (CAD)"
+                                    placeholder={String(varB?.maintenance_cad_annual || "")}
+                                    value={formData.maintenanceOverrideB}
+                                    onChange={(e) => onChange("maintenanceOverrideB", e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="number"
+                                    label="Annual insurance (CAD)"
+                                    placeholder={String(varB?.insurance_cad_annual || "")}
+                                    value={formData.insuranceOverrideB}
+                                    onChange={(e) => onChange("insuranceOverrideB", e.target.value)}
+                                />
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    type="number"
+                                    label="Annual depreciation (%)"
+                                    placeholder={String(varB?.depreciation_pct_annual || "")}
+                                    value={formData.depreciationOverrideB}
+                                    onChange={(e) => onChange("depreciationOverrideB", e.target.value)}
+                                />
+                            </Box>
                         </Box>
                     </Box>
-                </Box>
-            </Paper>
+                </AccordionDetails>
+            </Accordion>
 
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row-reverse' }, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Accordion
+                disableGutters
+                elevation={0}
+                sx={{ border: "1px solid #e0e0e0", borderRadius: "8px !important", mb: 4, "&:before": { display: "none" } }}
+            >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight="bold">Methodology, data sources, &amp; FAQ</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ pt: 0, pb: 2.5 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Electricity &amp; fuel rates: {provinceData.source} ({provinceData.updated}) · Grid carbon intensity:{" "}
+                        {provinceData.grid_co2_g_per_kwh} g CO₂/kWh.
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        TCO combines net purchase price (average MSRP minus applicable rebates), blended city/highway fuel
+                        costs, annual maintenance and insurance, and compound annual depreciation over your ownership period.
+                    </Typography>
+                </AccordionDetails>
+            </Accordion>
+
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row-reverse" }, alignItems: "center", justifyContent: "space-between" }}>
                 <Button
                     variant="contained"
                     onClick={onNext}
-                    sx={{ width: { xs: '100%', sm: 'auto' }, bgcolor: '#177574', '&:hover': { bgcolor: '#125c5b' }, py: 1.5, px: 4, textTransform: 'none' }}
+                    sx={{
+                        width: { xs: "100%", sm: "auto" },
+                        bgcolor: "#177574",
+                        "&:hover": { bgcolor: "#125c5b" },
+                        py: 1.5,
+                        px: 4,
+                        textTransform: "none",
+                        fontWeight: "bold",
+                    }}
                 >
                     Continue: Review your comparison <span>&nbsp;→</span>
                 </Button>
