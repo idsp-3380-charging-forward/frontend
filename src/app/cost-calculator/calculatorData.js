@@ -302,7 +302,10 @@ export const INITIAL_FORM_DATA = {
 };
 
 const GASOLINE_CO2_G_PER_LITRE = 2310;
-const HIGHWAY_EFF_FACTOR = { BEV: 0.90, PHEV: 0.90, Gasoline: 1.15 };
+// Energy/fuel consumption rate adjustment on highways (kWh/100km or L/100km)
+// Electric vehicles consume MORE energy at high highway speeds due to aerodynamic drag (> 1.0)
+// Gasoline vehicles consume LESS fuel on highways during steady cruising (< 1.0)
+const HIGHWAY_EFF_FACTOR = { BEV: 1.15, PHEV: 1.15, Gasoline: 0.85 };
 
 export function getVariant(categoryId, fuelType) {
     const category = VEHICLES_DATA.find((v) => v.id === categoryId);
@@ -342,23 +345,29 @@ function annualFuelCost(variant, fuelType, formData, provincePrices) {
         ? Number(formData.gasPrice)
         : provincePrices.gas_price_cad_l;
 
-    if (fuelType === 'BEV' || fuelType === 'PHEV') {
+    if (fuelType === 'BEV') {
         const baseEff = variant.efficiency_kwh_per_100km;
         if (!baseEff) return 0;
-        const hwFactor = HIGHWAY_EFF_FACTOR[fuelType] || 1.0;
+        const hwFactor = HIGHWAY_EFF_FACTOR.BEV || 1.15;
         const blendedEff = baseEff * (cityPct * 1.0 + hwPct * hwFactor);
-
-        if (fuelType === 'PHEV') {
-            const electricKm = Math.min(annualKm, variant.range_km ? variant.range_km * 12 : annualKm * 0.6);
-            const gasKm = Math.max(0, annualKm - electricKm);
-            const elecCost = (electricKm / 100) * blendedEff * elecRate;
-            const gasEff = variant.efficiency_l_per_100km || 6.0;
-            const gasBlended = gasEff * (cityPct * 1.0 + hwPct * HIGHWAY_EFF_FACTOR.Gasoline);
-            const gasCost = (gasKm / 100) * gasBlended * gasPrice;
-            return elecCost + gasCost;
-        }
-
         return (annualKm / 100) * blendedEff * elecRate;
+    }
+
+    if (fuelType === 'PHEV') {
+        const baseElecEff = variant.efficiency_kwh_per_100km || 6.0;
+        const hwFactor = HIGHWAY_EFF_FACTOR.PHEV || 1.15;
+        const blendedElecEff = baseElecEff * (cityPct * 1.0 + hwPct * hwFactor);
+
+        // Typical PHEV commuter charging pattern (~250 commuting days/year capped by range, or 60% annual km)
+        const maxCommuteElectric = variant.range_km ? variant.range_km * 250 : annualKm * 0.6;
+        const electricKm = Math.min(annualKm, Math.min(annualKm * 0.65, maxCommuteElectric));
+        const gasKm = Math.max(0, annualKm - electricKm);
+
+        const elecCost = (electricKm / 100) * blendedElecEff * elecRate;
+        const gasEff = variant.efficiency_l_per_100km || 4.5;
+        const gasBlended = gasEff * (cityPct * 1.0 + hwPct * HIGHWAY_EFF_FACTOR.Gasoline);
+        const gasCost = (gasKm / 100) * gasBlended * gasPrice;
+        return elecCost + gasCost;
     }
 
     if (fuelType === 'Gasoline') {
@@ -386,14 +395,18 @@ function annualEmissions(variant, fuelType, formData, provincePrices) {
     }
 
     if (fuelType === 'PHEV') {
-        const electricKm = Math.min(annualKm, variant.range_km ? variant.range_km * 12 : annualKm * 0.6);
+        const maxCommuteElectric = variant.range_km ? variant.range_km * 250 : annualKm * 0.6;
+        const electricKm = Math.min(annualKm, Math.min(annualKm * 0.65, maxCommuteElectric));
         const gasKm = Math.max(0, annualKm - electricKm);
-        const baseEff = variant.efficiency_kwh_per_100km || 6.0;
-        const kwhUsed = (electricKm / 100) * baseEff;
+
+        const baseElecEff = variant.efficiency_kwh_per_100km || 6.0;
+        const blendedElecEff = baseElecEff * (cityPct + hwPct * HIGHWAY_EFF_FACTOR.PHEV);
+        const kwhUsed = (electricKm / 100) * blendedElecEff;
         const elecCO2 = (kwhUsed * gridIntensity) / 1000;
-        const gasEff = variant.efficiency_l_per_100km || 6.0;
-        const blendedEff = gasEff * (cityPct + hwPct * HIGHWAY_EFF_FACTOR.Gasoline);
-        const litresUsed = (gasKm / 100) * blendedEff;
+
+        const gasEff = variant.efficiency_l_per_100km || 4.5;
+        const blendedGasEff = gasEff * (cityPct + hwPct * HIGHWAY_EFF_FACTOR.Gasoline);
+        const litresUsed = (gasKm / 100) * blendedGasEff;
         return elecCO2 + (litresUsed * GASOLINE_CO2_G_PER_LITRE) / 1000;
     }
 
@@ -405,9 +418,15 @@ function annualEmissions(variant, fuelType, formData, provincePrices) {
 
 function residualValue(variant, years, depreciationPctOverride) {
     const msrp = variant.msrp_avg || 0;
-    const pct = (depreciationPctOverride !== '' && depreciationPctOverride != null
+    let pct = (depreciationPctOverride !== '' && depreciationPctOverride != null
         ? Number(depreciationPctOverride)
         : variant.depreciation_pct_annual || 15) / 100;
+
+    if (isNaN(pct) || pct < 0) {
+        pct = (variant.depreciation_pct_annual || 15) / 100;
+    }
+    if (pct > 0.95) pct = 0.95;
+
     return msrp * Math.pow(1 - pct, years);
 }
 
@@ -462,13 +481,15 @@ function calculateBreakEvenYear(tcoA, tcoB, years) {
     let cumB = tcoB.netPrice;
     const aStartsHigher = cumA > cumB;
 
-    for (let y = 1; y <= years; y++) {
+    if (cumA === cumB) return 1;
+
+    // Check break-even up to ownership years or max 14 years
+    const maxYearsToCheck = Math.max(years, 14);
+    for (let y = 1; y <= maxYearsToCheck; y++) {
         cumA += tcoA.annualFuel + tcoA.annualMaint + tcoA.annualInsur;
         cumB += tcoB.annualFuel + tcoB.annualMaint + tcoB.annualInsur;
-        const effA = y === years ? cumA - tcoA.resale : cumA;
-        const effB = y === years ? cumB - tcoB.resale : cumB;
-        if (aStartsHigher && effA <= effB) return y;
-        if (!aStartsHigher && effB <= effA) return y;
+        if (aStartsHigher && cumA <= cumB) return y;
+        if (!aStartsHigher && cumB <= cumA) return y;
     }
     return null;
 }
@@ -505,6 +526,16 @@ export function calculateYearlyBreakdown(formData) {
     let cumA = vehicleA.netPrice;
     let cumB = vehicleB.netPrice;
 
+    rows.push({
+        year: 'Purchase',
+        yearNumber: 0,
+        annualCostA: 0,
+        annualCostB: 0,
+        cumulativeA: Math.round(cumA),
+        cumulativeB: Math.round(cumB),
+        diffAminusB: Math.round(cumA - cumB),
+    });
+
     for (let year = 1; year <= years; year++) {
         const annualCostA = vehicleA.annualFuel + vehicleA.annualMaint + vehicleA.annualInsur;
         const annualCostB = vehicleB.annualFuel + vehicleB.annualMaint + vehicleB.annualInsur;
@@ -512,17 +543,14 @@ export function calculateYearlyBreakdown(formData) {
         cumA += annualCostA;
         cumB += annualCostB;
 
-        const effectiveA = year === years ? cumA - vehicleA.resale : cumA;
-        const effectiveB = year === years ? cumB - vehicleB.resale : cumB;
-
         rows.push({
             year: `Year ${year}`,
             yearNumber: year,
             annualCostA,
             annualCostB,
-            cumulativeA: Math.round(effectiveA),
-            cumulativeB: Math.round(effectiveB),
-            diffAminusB: Math.round(effectiveA - effectiveB),
+            cumulativeA: Math.round(cumA),
+            cumulativeB: Math.round(cumB),
+            diffAminusB: Math.round(cumA - cumB),
         });
     }
 
