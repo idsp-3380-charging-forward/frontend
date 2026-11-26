@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from "@mui/material";
-import { ANNUAL_KM_OPTIONS, HIGHWAY_OPTIONS, OWNERSHIP_OPTIONS, PROVINCE_OPTIONS } from "./prototypeData";
+import { ANNUAL_KM_OPTIONS, HIGHWAY_OPTIONS, OWNERSHIP_OPTIONS, PROVINCE_OPTIONS } from "./calculatorData";
 
 export default function DrivingStep({ formData, onChange, onNext }) {
     return (
