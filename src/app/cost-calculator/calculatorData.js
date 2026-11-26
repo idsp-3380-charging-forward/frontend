@@ -495,3 +495,36 @@ export function calculateTcoComparison(formData) {
         breakEvenYear,
     };
 }
+
+export function calculateYearlyBreakdown(formData) {
+    const result = calculateTcoComparison(formData);
+    if (!result) return [];
+
+    const { vehicleA, vehicleB, years } = result;
+    const rows = [];
+    let cumA = vehicleA.netPrice;
+    let cumB = vehicleB.netPrice;
+
+    for (let year = 1; year <= years; year++) {
+        const annualCostA = vehicleA.annualFuel + vehicleA.annualMaint + vehicleA.annualInsur;
+        const annualCostB = vehicleB.annualFuel + vehicleB.annualMaint + vehicleB.annualInsur;
+
+        cumA += annualCostA;
+        cumB += annualCostB;
+
+        const effectiveA = year === years ? cumA - vehicleA.resale : cumA;
+        const effectiveB = year === years ? cumB - vehicleB.resale : cumB;
+
+        rows.push({
+            year: `Year ${year}`,
+            yearNumber: year,
+            annualCostA,
+            annualCostB,
+            cumulativeA: Math.round(effectiveA),
+            cumulativeB: Math.round(effectiveB),
+            diffAminusB: Math.round(effectiveA - effectiveB),
+        });
+    }
+
+    return rows;
+}
