@@ -1,10 +1,10 @@
 "use client";
 
 import { Box, Button, FormControlLabel, Paper, Radio, RadioGroup, Typography } from "@mui/material";
-import { VEHICLE_OPTIONS } from "./prototypeData";
+import { VEHICLES_DATA } from "./calculatorData";
 
 export default function VehicleStep({ formData, onChange, onNext }) {
-    const selectedVehicle = VEHICLE_OPTIONS.find((item) => item.value === formData.vehicle);
+    const selectedVehicle = VEHICLES_DATA.find((item) => item.id === formData.vehicle);
 
     return (
         <Box>
@@ -26,18 +26,18 @@ export default function VehicleStep({ formData, onChange, onNext }) {
                     onChange={(e) => onChange('vehicle', e.target.value)}
                 >
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                        {VEHICLE_OPTIONS.map((option) => (
+                        {VEHICLES_DATA.map((option) => (
                             <Box
-                                key={option.value}
+                                key={option.id}
                                 sx={{
                                     border: '1px solid #e0e0e0',
                                     borderRadius: 1,
                                     p: 1,
-                                    bgcolor: option.value === formData.vehicle ? '#e0f2f1' : 'transparent'
+                                    bgcolor: option.id === formData.vehicle ? '#e0f2f1' : 'transparent'
                                 }}
                             >
                                 <FormControlLabel
-                                    value={option.value}
+                                    value={option.id}
                                     control={<Radio sx={{ color: '#177574', '&.Mui-checked': { color: '#177574' } }} />}
                                     label={option.label}
                                     sx={{ width: '100%', m: 0 }}

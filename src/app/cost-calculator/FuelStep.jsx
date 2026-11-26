@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Button, FormControl, MenuItem, Paper, Select, Typography } from "@mui/material";
-import { FUEL_OPTIONS } from "./prototypeData";
+import { FUEL_OPTIONS } from "./calculatorData";
 
 export default function FuelStep({ formData, onChange, onNext }) {
     const handleFirstFuelChange = (e) => {

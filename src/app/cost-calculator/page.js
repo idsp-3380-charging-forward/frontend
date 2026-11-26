@@ -2,10 +2,10 @@
 
 import { Box, Container, CssBaseline, Step, StepLabel, Stepper, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useState } from "react";
+import { INITIAL_FORM_DATA, PROVINCE_OPTIONS } from "./calculatorData";
 import DrivingStep from "./DrivingStep";
 import FuelStep from "./FuelStep";
 import PricingStep from "./PricingStep";
-import { INITIAL_FORM_DATA, PROVINCE_OPTIONS } from "./prototypeData";
 import ReviewStep from "./ReviewStep";
 import VehicleStep from "./VehicleStep";
 
