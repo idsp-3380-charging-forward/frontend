@@ -2,7 +2,11 @@
 
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Button,
     Divider,
@@ -22,6 +26,7 @@ import {
     Legend,
     Line,
     LineChart,
+    ReferenceLine,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -43,7 +48,6 @@ export default function ResultsView({
     provinceName,
     firstFuelLabel,
     secondFuelLabel,
-    onBackToReview,
     onEdit,
 }) {
     const { vehicleA, vehicleB, years, savings, cheaperFuel, breakEvenYear } = result;
@@ -52,164 +56,278 @@ export default function ResultsView({
 
     const yearlyRows = calculateYearlyBreakdown(formData);
 
+    const fuelLabelA = `${firstFuelLabel.toUpperCase()} (${vehicleA.fuelType})`;
+    const fuelLabelB = `${secondFuelLabel.toUpperCase()} (${vehicleB.fuelType})`;
+
     const breakdownRows = [
         {
-            label: "Net purchase price",
+            label: "Purchase price (net)",
             a: vehicleA.netPrice,
             b: vehicleB.netPrice,
+            diff: vehicleA.netPrice - vehicleB.netPrice,
             isTotal: false,
         },
         {
-            label: `Fuel / electricity (${years} yrs)`,
+            label: "Fuel costs",
             a: vehicleA.totalFuel,
             b: vehicleB.totalFuel,
+            diff: vehicleA.totalFuel - vehicleB.totalFuel,
             isTotal: false,
         },
         {
-            label: `Maintenance (${years} yrs)`,
+            label: "Maintenance",
             a: vehicleA.totalMaint,
             b: vehicleB.totalMaint,
+            diff: vehicleA.totalMaint - vehicleB.totalMaint,
             isTotal: false,
         },
         {
-            label: `Insurance (${years} yrs)`,
+            label: "Insurance",
             a: vehicleA.totalInsur,
             b: vehicleB.totalInsur,
+            diff: vehicleA.totalInsur - vehicleB.totalInsur,
             isTotal: false,
         },
         {
-            label: "Resale credit",
+            label: "Resale value (credit)",
             a: -vehicleA.resale,
             b: -vehicleB.resale,
+            diff: -vehicleA.resale - (-vehicleB.resale),
             isTotal: false,
         },
         {
-            label: `Total Cost of Ownership (${years} yrs)`,
+            label: "Total Cost of Ownership",
             a: vehicleA.total,
             b: vehicleB.total,
+            diff: vehicleA.total - vehicleB.total,
             isTotal: true,
         },
     ];
 
     const categoryChartData = [
         {
-            category: "Net Purchase",
-            [firstFuelLabel]: Math.round(vehicleA.netPrice),
-            [secondFuelLabel]: Math.round(vehicleB.netPrice),
+            category: "Purchase",
+            [fuelLabelA]: Math.round(vehicleA.netPrice),
+            [fuelLabelB]: Math.round(vehicleB.netPrice),
         },
         {
-            category: "Fuel / Energy",
-            [firstFuelLabel]: Math.round(vehicleA.totalFuel),
-            [secondFuelLabel]: Math.round(vehicleB.totalFuel),
+            category: "Fuel",
+            [fuelLabelA]: Math.round(vehicleA.totalFuel),
+            [fuelLabelB]: Math.round(vehicleB.totalFuel),
         },
         {
             category: "Maintenance",
-            [firstFuelLabel]: Math.round(vehicleA.totalMaint),
-            [secondFuelLabel]: Math.round(vehicleB.totalMaint),
+            [fuelLabelA]: Math.round(vehicleA.totalMaint),
+            [fuelLabelB]: Math.round(vehicleB.totalMaint),
         },
         {
             category: "Insurance",
-            [firstFuelLabel]: Math.round(vehicleA.totalInsur),
-            [secondFuelLabel]: Math.round(vehicleB.totalInsur),
+            [fuelLabelA]: Math.round(vehicleA.totalInsur),
+            [fuelLabelB]: Math.round(vehicleB.totalInsur),
         },
         {
-            category: "Resale Credit",
-            [firstFuelLabel]: Math.round(vehicleA.resale),
-            [secondFuelLabel]: Math.round(vehicleB.resale),
+            category: "Resale (credit)",
+            [fuelLabelA]: -Math.round(vehicleA.resale),
+            [fuelLabelB]: -Math.round(vehicleB.resale),
         },
     ];
 
     return (
         <Box>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
+            <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ color: "#0f2f2e" }}>
                 Your Results
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                {vehicleLabel} · {provinceName} · {years}-year ownership ({Number(formData.annualKm).toLocaleString("en-CA")} km/yr, {formData.highwayPct}% highway)
+            <Typography variant="body1" sx={{ color: "#37474f", fontWeight: 500, mb: 1 }}>
+                Total cost of ownership
             </Typography>
 
-            <Paper elevation={0} sx={{ bgcolor: "#e0f2f1", border: "1px solid #b2dfdb", borderRadius: 2, p: 2.5, mb: 3 }}>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ color: "#004d40" }}>
-                    {savings < 100
-                        ? `${firstFuelLabel} and ${secondFuelLabel} have nearly identical total ownership costs over ${years} years.`
-                        : `${cheaperFuelLabel} is estimated to save ${formatCurrency(savings)} over ${years} years`}
-                    {breakEvenYear ? ` (break-even in Year ${breakEvenYear}).` : "."}
-                </Typography>
-            </Paper>
+            <Typography variant="h5" fontWeight="bold" sx={{ color: "#2e7d32", mb: 4 }}>
+                {savings < 100
+                    ? `${firstFuelLabel} and ${secondFuelLabel} have nearly identical total ownership costs over ${years} years`
+                    : `${cheaperFuelLabel} (${cheaperFuel}) saves you ${formatCurrency(savings)} over ${years} years`}
+            </Typography>
 
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 4 }}>
-                <Paper elevation={0} sx={{ p: 2.5, bgcolor: "#f5fafa", borderRadius: 2, border: "1.5px solid #177574" }}>
-                    <Typography variant="caption" color="#177574" fontWeight="bold" display="block">
-                        {firstFuelLabel.toUpperCase()}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-                        e.g., {vehicleA.examples.slice(0, 2).join(", ")}
-                    </Typography>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
-                        {formatCurrency(vehicleA.total)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                        Monthly avg: <strong>{formatCurrency(vehicleA.monthlyAvg)}/mo</strong> · {(vehicleA.perKm * 100).toFixed(1)}¢/km
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                        Annual fuel: {formatCurrency(vehicleA.annualFuel)} · Net price: {formatCurrency(vehicleA.netPrice)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Annual CO₂: {Math.round(vehicleA.annualCo2Kg).toLocaleString("en-CA")} kg/yr
-                    </Typography>
+            {/* Comparison Summary Cards */}
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3, mb: 4 }}>
+                {/* Vehicle A Card */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        borderRadius: 2.5,
+                        border: "1px solid #c8e6c9",
+                        borderTop: "6px solid #2e7d32",
+                        p: 2.5,
+                        bgcolor: "white",
+                    }}
+                >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ color: "#2e7d32" }}>
+                            {firstFuelLabel.toUpperCase()} ({vehicleA.fuelType})
+                        </Typography>
+                        <Box sx={{ textAlign: "right" }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Total Cost of Ownership
+                            </Typography>
+                            <Typography variant="h5" fontWeight="bold" sx={{ color: "#0f2f2e" }}>
+                                {formatCurrency(vehicleA.total)}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, mb: 1.5 }}>
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Monthly avg
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {formatCurrency(vehicleA.monthlyAvg)}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Cost per km
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {(vehicleA.perKm * 100).toFixed(1)}¢/km
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Annual fuel
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {formatCurrency(vehicleA.annualFuel)}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Annual CO₂
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {Math.round(vehicleA.annualCo2Kg).toLocaleString("en-CA")} kg CO₂
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" display="block">
+                            Net purchase price
+                        </Typography>
+                        <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                            {formatCurrency(vehicleA.netPrice)}
+                        </Typography>
+                    </Box>
                 </Paper>
 
-                <Paper elevation={0} sx={{ p: 2.5, bgcolor: "#fafafa", borderRadius: 2, border: "1px solid #e0e0e0" }}>
-                    <Typography variant="caption" color="text.secondary" fontWeight="bold" display="block">
-                        {secondFuelLabel.toUpperCase()}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-                        e.g., {vehicleB.examples.slice(0, 2).join(", ")}
-                    </Typography>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
-                        {formatCurrency(vehicleB.total)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                        Monthly avg: <strong>{formatCurrency(vehicleB.monthlyAvg)}/mo</strong> · {(vehicleB.perKm * 100).toFixed(1)}¢/km
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                        Annual fuel: {formatCurrency(vehicleB.annualFuel)} · Net price: {formatCurrency(vehicleB.netPrice)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Annual CO₂: {Math.round(vehicleB.annualCo2Kg).toLocaleString("en-CA")} kg/yr
-                    </Typography>
+                {/* Vehicle B Card */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                        borderRadius: 2.5,
+                        border: "1px solid #ffcdd2",
+                        borderTop: "6px solid #c62828",
+                        p: 2.5,
+                        bgcolor: "white",
+                    }}
+                >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+                        <Typography variant="subtitle2" fontWeight="bold" sx={{ color: "#c62828" }}>
+                            {secondFuelLabel.toUpperCase()} ({vehicleB.fuelType})
+                        </Typography>
+                        <Box sx={{ textAlign: "right" }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Total Cost of Ownership
+                            </Typography>
+                            <Typography variant="h5" fontWeight="bold" sx={{ color: "#0f2f2e" }}>
+                                {formatCurrency(vehicleB.total)}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5, mb: 1.5 }}>
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Monthly avg
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {formatCurrency(vehicleB.monthlyAvg)}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Cost per km
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {(vehicleB.perKm * 100).toFixed(1)}¢/km
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Annual fuel
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {formatCurrency(vehicleB.annualFuel)}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Annual CO₂
+                            </Typography>
+                            <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                                {Math.round(vehicleB.annualCo2Kg).toLocaleString("en-CA")} kg CO₂
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ bgcolor: "#f5f5f5", p: 1.5, borderRadius: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" display="block">
+                            Net purchase price
+                        </Typography>
+                        <Typography variant="body1" fontWeight="bold" sx={{ color: "#263238" }}>
+                            {formatCurrency(vehicleB.netPrice)}
+                        </Typography>
+                    </Box>
                 </Paper>
             </Box>
 
-            <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3, mb: 4 }}>
-                <Typography fontWeight="bold" gutterBottom>
-                    Cost breakdown &amp; difference
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Difference compares {firstFuelLabel} minus {secondFuelLabel}.
+            {/* Cost Breakdown Table */}
+            <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2.5, p: 3, mb: 4 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "#0f2f2e", mb: 2 }}>
+                    Cost breakdown
                 </Typography>
 
                 <Box sx={{ overflowX: "auto" }}>
-                    <Table size="small">
+                    <Table size="medium">
                         <TableHead>
-                            <TableRow sx={{ bgcolor: "#fafafa" }}>
-                                <TableCell sx={{ fontWeight: "bold" }}>Cost Category</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: "bold" }}>{firstFuelLabel}</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: "bold" }}>{secondFuelLabel}</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: "bold" }}>DIFFERENCE</TableCell>
+                            <TableRow sx={{ bgcolor: "#f5f5f5" }}>
+                                <TableCell sx={{ fontWeight: "bold", color: "#37474f" }}>CATEGORY</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
+                                    {fuelLabelA}
+                                </TableCell>
+                                <TableCell align="right" sx={{ fontWeight: "bold", color: "#c62828" }}>
+                                    {fuelLabelB}
+                                </TableCell>
+                                <TableCell align="right" sx={{ fontWeight: "bold", color: "#37474f" }}>
+                                    DIFFERENCE
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {breakdownRows.map((row) => {
-                                const diff = row.a - row.b;
-                                const isHigher = diff > 0;
-                                const isLower = diff < 0;
+                                const isHigher = row.diff > 0;
+                                const isLower = row.diff < 0;
                                 return (
                                     <TableRow
                                         key={row.label}
-                                        sx={row.isTotal ? { bgcolor: "#f5fafa" } : undefined}
+                                        sx={row.isTotal ? { bgcolor: "#f1f8e9", fontWeight: "bold" } : undefined}
                                     >
-                                        <TableCell sx={{ fontWeight: row.isTotal ? "bold" : "normal" }}>
+                                        <TableCell sx={{ fontWeight: row.isTotal ? "bold" : 500, color: "#263238" }}>
                                             {row.label}
                                         </TableCell>
                                         <TableCell align="right" sx={{ fontWeight: row.isTotal ? "bold" : "normal" }}>
@@ -225,12 +343,13 @@ export default function ResultsView({
                                                     display: "inline-flex",
                                                     alignItems: "center",
                                                     justifyContent: "flex-end",
-                                                    color: isHigher ? "#b71c1c" : isLower ? "#177574" : "text.secondary",
+                                                    color: isHigher ? "#c62828" : isLower ? "#2e7d32" : "text.secondary",
+                                                    fontWeight: "bold",
                                                 }}
                                             >
-                                                {isHigher && <ArrowDropUpIcon fontSize="small" />}
-                                                {isLower && <ArrowDropDownIcon fontSize="small" />}
-                                                {diff === 0 ? "$0" : formatCurrency(Math.abs(diff))}
+                                                {isHigher && "▲ "}
+                                                {isLower && "▼ "}
+                                                {row.diff === 0 ? "$0" : formatCurrency(Math.abs(row.diff))}
                                             </Box>
                                         </TableCell>
                                     </TableRow>
@@ -241,143 +360,189 @@ export default function ResultsView({
                 </Box>
             </Paper>
 
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3, mb: 4 }}>
-                <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 2.5 }}>
-                    <Typography fontWeight="bold" gutterBottom>
-                        Cumulative cost over time
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
-                        Cumulative ownership cost across {years} years
-                    </Typography>
-                    <Box sx={{ width: "100%", height: 260 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={yearlyRows} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#eeeeee" />
-                                <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                                <YAxis
-                                    tick={{ fontSize: 11 }}
-                                    tickFormatter={(val) => `$${Math.round(val / 1000)}k`}
-                                />
-                                <Tooltip formatter={(val) => formatCurrency(val)} />
-                                <Legend wrapperStyle={{ fontSize: 12 }} />
-                                <Line
-                                    type="monotone"
-                                    dataKey="cumulativeA"
-                                    name={firstFuelLabel}
-                                    stroke="#177574"
-                                    strokeWidth={2.5}
-                                    dot={{ r: 3 }}
-                                />
-                                <Line
-                                    type="monotone"
-                                    dataKey="cumulativeB"
-                                    name={secondFuelLabel}
-                                    stroke="#546e7a"
-                                    strokeWidth={2.5}
-                                    dot={{ r: 3 }}
-                                />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </Box>
-                </Paper>
-
-                <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 2.5 }}>
-                    <Typography fontWeight="bold" gutterBottom>
-                        Cost breakdown by category
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
-                        Comparison by major ownership component ({years} yrs)
-                    </Typography>
-                    <Box sx={{ width: "100%", height: 260 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={categoryChartData} margin={{ top: 8, right: 12, left: 4, bottom: 4 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#eeeeee" />
-                                <XAxis dataKey="category" tick={{ fontSize: 10 }} />
-                                <YAxis
-                                    tick={{ fontSize: 11 }}
-                                    tickFormatter={(val) => `$${Math.round(val / 1000)}k`}
-                                />
-                                <Tooltip formatter={(val) => formatCurrency(val)} />
-                                <Legend wrapperStyle={{ fontSize: 12 }} />
-                                <Bar dataKey={firstFuelLabel} fill="#177574" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey={secondFuelLabel} fill="#90a4ae" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Box>
-                </Paper>
-            </Box>
-
-            <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2, p: 3, mb: 4 }}>
-                <Typography fontWeight="bold" gutterBottom>
-                    Year-by-year Cost breakdown
+            {/* Cumulative cost over time Chart */}
+            <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2.5, p: 3, mb: 4 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "#0f2f2e" }}>
+                    Cumulative cost over time
                 </Typography>
-                <Box sx={{ overflowX: "auto" }}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow sx={{ bgcolor: "#fafafa" }}>
-                                <TableCell sx={{ fontWeight: "bold" }}>Year</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                                    {firstFuelLabel} Cumulative
-                                </TableCell>
-                                <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                                    {secondFuelLabel} Cumulative
-                                </TableCell>
-                                <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                                    Difference ({firstFuelLabel} - {secondFuelLabel})
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {yearlyRows.map((row) => (
-                                <TableRow key={row.year}>
-                                    <TableCell>{row.year}</TableCell>
-                                    <TableCell align="right">{formatCurrency(row.cumulativeA)}</TableCell>
-                                    <TableCell align="right">{formatCurrency(row.cumulativeB)}</TableCell>
-                                    <TableCell align="right">
-                                        {row.diffAminusB < 0
-                                            ? `-${formatCurrency(Math.abs(row.diffAminusB))}`
-                                            : formatCurrency(row.diffAminusB)}
+                <Typography variant="body2" sx={{ color: "#2e7d32", fontWeight: "bold", mb: 2 }}>
+                    {breakEvenYear ? `Break-even at year ${breakEvenYear}` : `No break-even point reached within ${years} years`}
+                </Typography>
+
+                <Box sx={{ width: "100%", height: 320 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={yearlyRows} margin={{ top: 12, right: 20, left: 10, bottom: 8 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                            <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                            <YAxis
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(val) => `$${Math.round(val / 1000)}k`}
+                            />
+                            <Tooltip formatter={(val) => formatCurrency(val)} />
+                            <Legend wrapperStyle={{ fontSize: 13, paddingTop: 12 }} />
+                            <Line
+                                type="monotone"
+                                dataKey="cumulativeA"
+                                name={fuelLabelA}
+                                stroke="#2e7d32"
+                                strokeWidth={3}
+                                dot={{ r: 4 }}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="cumulativeB"
+                                name={fuelLabelB}
+                                stroke="#c62828"
+                                strokeWidth={3}
+                                dot={{ r: 4 }}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", mt: 1 }}>
+                    Year of ownership
+                </Typography>
+            </Paper>
+
+            {/* Year-by-year Cost Breakdown Accordion */}
+            <Accordion
+                disableGutters
+                elevation={0}
+                sx={{
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "10px !important",
+                    mb: 4,
+                    "&:before": { display: "none" },
+                }}
+            >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight="bold" sx={{ color: "#0f2f2e" }}>
+                        Year-by-year Cost breakdown
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ pt: 0, pb: 2.5 }}>
+                    <Box sx={{ overflowX: "auto" }}>
+                        <Table size="small">
+                            <TableHead>
+                                <TableRow sx={{ bgcolor: "#fafafa" }}>
+                                    <TableCell sx={{ fontWeight: "bold" }}>Year</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
+                                        {firstFuelLabel} Cumulative
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: "bold", color: "#c62828" }}>
+                                        {secondFuelLabel} Cumulative
+                                    </TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                                        Difference ({firstFuelLabel} - {secondFuelLabel})
                                     </TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHead>
+                            <TableBody>
+                                {yearlyRows.map((row) => (
+                                    <TableRow key={row.year}>
+                                        <TableCell sx={{ fontWeight: 500 }}>{row.year}</TableCell>
+                                        <TableCell align="right">{formatCurrency(row.cumulativeA)}</TableCell>
+                                        <TableCell align="right">{formatCurrency(row.cumulativeB)}</TableCell>
+                                        <TableCell align="right" sx={{ fontWeight: 500 }}>
+                                            {row.diffAminusB < 0
+                                                ? `-${formatCurrency(Math.abs(row.diffAminusB))}`
+                                                : formatCurrency(row.diffAminusB)}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Box>
+                </AccordionDetails>
+            </Accordion>
+
+            {/* Cost breakdown by category Chart */}
+            <Paper elevation={0} sx={{ border: "1px solid #e0e0e0", borderRadius: 2.5, p: 3, mb: 4 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "#0f2f2e", mb: 2 }}>
+                    Cost breakdown by category
+                </Typography>
+
+                <Box sx={{ width: "100%", height: 320 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={categoryChartData} margin={{ top: 12, right: 20, left: 10, bottom: 8 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                            <XAxis dataKey="category" tick={{ fontSize: 12 }} />
+                            <YAxis
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(val) =>
+                                    val < 0 ? `-$${Math.abs(Math.round(val / 1000))}k` : `$${Math.round(val / 1000)}k`
+                                }
+                            />
+                            <Tooltip
+                                formatter={(val) =>
+                                    val < 0 ? `-${formatCurrency(Math.abs(val))} (Credit)` : formatCurrency(val)
+                                }
+                            />
+                            <Legend wrapperStyle={{ fontSize: 13, paddingTop: 12 }} />
+                            <ReferenceLine y={0} stroke="#9e9e9e" />
+                            <Bar dataKey={fuelLabelA} fill="#2e7d32" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey={fuelLabelB} fill="#c62828" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </Box>
             </Paper>
 
+            {/* Methodology, data sources, & FAQ Accordion */}
+            <Accordion
+                disableGutters
+                elevation={0}
+                sx={{
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "10px !important",
+                    mb: 4,
+                    "&:before": { display: "none" },
+                }}
+            >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography fontWeight="bold" sx={{ color: "#0f2f2e" }}>
+                        Methodology, data sources, &amp; FAQ
+                    </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ pt: 0, pb: 2.5 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        Electricity &amp; fuel rates: {result.provincePrices.source} ({result.provincePrices.updated}) · Grid carbon intensity:{" "}
+                        {result.provincePrices.grid_co2_g_per_kwh} g CO₂/kWh.
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Total Cost of Ownership (TCO) combines net purchase price (average MSRP minus applicable federal/provincial rebates), blended city/highway fuel or electricity costs, annual maintenance and insurance estimates, and compound annual depreciation over your chosen ownership period.
+                    </Typography>
+                </AccordionDetails>
+            </Accordion>
+
             <Divider sx={{ mb: 3 }} />
 
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, alignItems: "center", justifyContent: "space-between" }}>
-                <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, width: { xs: "100%", sm: "auto" } }}>
-                    <Button
-                        variant="outlined"
-                        onClick={onBackToReview}
-                        sx={{
-                            borderColor: "#177574",
-                            color: "#177574",
-                            py: 1.25,
-                            px: 3,
-                            textTransform: "none",
-                            fontWeight: "bold",
-                        }}
-                    >
-                        ← Back to review
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={onEdit}
-                        sx={{
-                            bgcolor: "#177574",
-                            "&:hover": { bgcolor: "#125c5b" },
-                            py: 1.25,
-                            px: 3,
-                            textTransform: "none",
-                            fontWeight: "bold",
-                        }}
-                    >
-                        Edit comparison inputs
-                    </Button>
-                </Box>
+            {/* Bottom Navigation Buttons (matching Prototype Page 36 & 43) */}
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    gap: 2,
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                }}
+            >
+                <Button
+                    variant="contained"
+                    onClick={onEdit}
+                    sx={{
+                        width: { xs: "100%", sm: "auto" },
+                        bgcolor: "#b0bec5",
+                        color: "#263238",
+                        "&:hover": { bgcolor: "#90a4ae" },
+                        py: 1.5,
+                        px: 3.5,
+                        textTransform: "none",
+                        fontWeight: "bold",
+                        boxShadow: "none",
+                    }}
+                >
+                    ← Edit comparison inputs
+                </Button>
 
                 <Button
                     component={Link}
@@ -388,8 +553,8 @@ export default function ResultsView({
                         bgcolor: "#80cbc4",
                         color: "#004d40",
                         "&:hover": { bgcolor: "#4db6ac" },
-                        py: 1.25,
-                        px: 3,
+                        py: 1.5,
+                        px: 3.5,
                         textTransform: "none",
                         fontWeight: "bold",
                         boxShadow: "none",

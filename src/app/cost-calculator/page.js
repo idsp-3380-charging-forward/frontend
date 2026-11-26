@@ -5,12 +5,7 @@ import {
     Button,
     Container,
     CssBaseline,
-    Step,
-    StepLabel,
-    Stepper,
     Typography,
-    useMediaQuery,
-    useTheme,
 } from "@mui/material";
 import Link from "next/link";
 import { useState } from "react";
@@ -20,8 +15,6 @@ import FuelStep from "./FuelStep";
 import PricingStep from "./PricingStep";
 import ReviewStep from "./ReviewStep";
 import VehicleStep from "./VehicleStep";
-
-const steps = ["Choose vehicle", "Fuel types", "Driving profile", "Energy prices", "Review"];
 
 const stepTitles = {
     1: "Choose your vehicle",
@@ -35,8 +28,6 @@ export default function CostCalculatorPage() {
     const [step, setStep] = useState(1);
     const [viewMode, setViewMode] = useState("wizard");
     const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     const nextStep = () => {
         if (step < 4) {
@@ -133,41 +124,24 @@ export default function CostCalculatorPage() {
 
                 {!isResultsView && (
                     <Box sx={{ mb: { xs: 4, md: 5 } }}>
-                        <Typography variant="overline" sx={{ color: "#177574", fontWeight: "bold" }}>
+                        <Typography variant="overline" sx={{ color: "#177574", fontWeight: "bold", letterSpacing: "0.5px" }}>
                             COST CALCULATOR / STEP {step} OF 5
                         </Typography>
 
-                        {isMobile ? (
-                            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                                {[1, 2, 3, 4, 5].map((s) => (
-                                    <Box
-                                        key={s}
-                                        sx={{
-                                            height: 4,
-                                            flex: 1,
-                                            bgcolor: s <= step ? "#177574" : "#e0e0e0",
-                                            borderRadius: 1,
-                                        }}
-                                    />
-                                ))}
-                            </Box>
-                        ) : (
-                            <Stepper activeStep={step - 1} alternativeLabel sx={{ mt: 2.5 }}>
-                                {steps.map((label, index) => (
-                                    <Step key={label}>
-                                        <StepLabel
-                                            sx={{
-                                                "& .MuiStepIcon-root": {
-                                                    color: index < step ? "#177574" : "#e0e0e0",
-                                                },
-                                            }}
-                                        >
-                                            {label}
-                                        </StepLabel>
-                                    </Step>
-                                ))}
-                            </Stepper>
-                        )}
+                        <Box sx={{ display: "flex", gap: 1.5, mt: 1.5 }}>
+                            {[1, 2, 3, 4, 5].map((s) => (
+                                <Box
+                                    key={s}
+                                    sx={{
+                                        height: 6,
+                                        flex: 1,
+                                        bgcolor: s <= step ? "#177574" : "#e0e0e0",
+                                        borderRadius: 1,
+                                        transition: "background-color 0.3s ease",
+                                    }}
+                                />
+                            ))}
+                        </Box>
                     </Box>
                 )}
 
