@@ -79,8 +79,9 @@ export default function CostCalculatorPage() {
         });
     };
 
+    const isResultsView = viewMode === "results";
     const activeBreadcrumbLabel =
-        viewMode === "results" ? "Results" : stepTitles[step] || "Choose your vehicle";
+        isResultsView ? "Results" : stepTitles[step] || "Choose your vehicle";
 
     return (
         <Box sx={{ minHeight: "100vh", bgcolor: "#fafafa", pb: 8 }}>
@@ -98,7 +99,7 @@ export default function CostCalculatorPage() {
             </Box>
 
             <Container maxWidth="md">
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1, mb: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1, mb: isResultsView ? 3 : 2 }}>
                     <Typography variant="caption" color="text.secondary">
                         <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>Home</Link>
                         {" / "}
@@ -115,7 +116,7 @@ export default function CostCalculatorPage() {
                         </Box>
                     </Typography>
 
-                    {(step > 1 || viewMode === "results") && (
+                    {(step > 1 || isResultsView) && (
                         <Button
                             variant="text"
                             size="small"
@@ -127,43 +128,45 @@ export default function CostCalculatorPage() {
                     )}
                 </Box>
 
-                <Box sx={{ mb: { xs: 4, md: 5 } }}>
-                    <Typography variant="overline" sx={{ color: "#177574", fontWeight: "bold" }}>
-                        COST CALCULATOR / STEP {step} OF 5
-                    </Typography>
+                {!isResultsView && (
+                    <Box sx={{ mb: { xs: 4, md: 5 } }}>
+                        <Typography variant="overline" sx={{ color: "#177574", fontWeight: "bold" }}>
+                            COST CALCULATOR / STEP {step} OF 5
+                        </Typography>
 
-                    {isMobile ? (
-                        <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                            {[1, 2, 3, 4, 5].map((s) => (
-                                <Box
-                                    key={s}
-                                    sx={{
-                                        height: 4,
-                                        flex: 1,
-                                        bgcolor: s <= step ? "#177574" : "#e0e0e0",
-                                        borderRadius: 1,
-                                    }}
-                                />
-                            ))}
-                        </Box>
-                    ) : (
-                        <Stepper activeStep={step - 1} alternativeLabel sx={{ mt: 2.5 }}>
-                            {steps.map((label, index) => (
-                                <Step key={label}>
-                                    <StepLabel
+                        {isMobile ? (
+                            <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                    <Box
+                                        key={s}
                                         sx={{
-                                            "& .MuiStepIcon-root": {
-                                                color: index < step ? "#177574" : "#e0e0e0",
-                                            },
+                                            height: 4,
+                                            flex: 1,
+                                            bgcolor: s <= step ? "#177574" : "#e0e0e0",
+                                            borderRadius: 1,
                                         }}
-                                    >
-                                        {label}
-                                    </StepLabel>
-                                </Step>
-                            ))}
-                        </Stepper>
-                    )}
-                </Box>
+                                    />
+                                ))}
+                            </Box>
+                        ) : (
+                            <Stepper activeStep={step - 1} alternativeLabel sx={{ mt: 2.5 }}>
+                                {steps.map((label, index) => (
+                                    <Step key={label}>
+                                        <StepLabel
+                                            sx={{
+                                                "& .MuiStepIcon-root": {
+                                                    color: index < step ? "#177574" : "#e0e0e0",
+                                                },
+                                            }}
+                                        >
+                                            {label}
+                                        </StepLabel>
+                                    </Step>
+                                ))}
+                            </Stepper>
+                        )}
+                    </Box>
+                )}
 
                 <Box
                     sx={{
