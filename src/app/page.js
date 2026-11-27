@@ -1,6 +1,8 @@
 import { fetchPage } from "../api/services/pages";
 import { WP_SLUGS } from "../constants/routes";
 import ContentCard from "../components/ui/ContentCard";
+import placeholder from '../assets/JulesTheOtterChatIcon.svg'
+
 
 export default async function Home() {
     return (
