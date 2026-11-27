@@ -1,3 +1,4 @@
+import Footer from "../components/common/Footer";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import Header from '../components/common/Header';
 import './globals.css';
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
         <AppRouterCacheProvider>
           <Header />
           <main>{children}</main>
+          <Footer />
         </AppRouterCacheProvider>
       </body>
     </html>
