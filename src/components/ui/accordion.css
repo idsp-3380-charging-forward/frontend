@@ -1,0 +1,20 @@
+/* this could be renamed to border bc card will also have this */
+.accordion {
+    border: 1px solid #c3cad5;
+    padding: 1fr;
+}
+
+.accordion.title {
+    font-weight: 400px;
+}
+
+.accordion.p {
+    font-weight: 200px;
+}
+
+.accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
