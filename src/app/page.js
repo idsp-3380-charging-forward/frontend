@@ -1,16 +1,24 @@
 import { fetchPage } from "../api/services/pages";
 import { WP_SLUGS } from "../constants/routes";
-import NavBtn from "../components/ui/NavBtn";
+import ContentCard from "../components/ui/ContentCard";
 
 export default async function Home() {
-return (
-    <div>
-        <h2>menu button</h2>
-        <NavBtn />
-    </div>
-
-
-)
+    return (
+        <>
+            <div className='c-card-container'>
+                <ContentCard title='this is a content card'>
+                    <div className='text-container'>
+                        <p>this is content in the card</p>
+                    </div>
+                </ContentCard>
+                <ContentCard title='this is also a title'>
+                    <div className='text-container'>
+                        <p>this is content in the card</p>
+                    </div>
+                </ContentCard>
+            </div>
+        </>
+    );
     // try {
     //     const pageData = await fetchPage(WP_SLUGS.HOME);
 
